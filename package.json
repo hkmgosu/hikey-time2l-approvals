@@ -1,7 +1,7 @@
 {
     "name": "time2l-lambda-approvals",
     "version": "0.0.1",
-    "description": "Serverless approvals for Time2L serverless Cor3helper API",
+    "description": "Serverless approvals for Time2L",
     "scripts": {
         "dep-graph": "npx madge --image dependency-graph.svg src/",
         "deploy": "NODE_ENV=dev yarn deploy:env",
@@ -15,10 +15,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://ac1-git1.p3-group.com/THC_corhelp3r/corhelper-aws"
+        "url": "https://bitbucket.org/hikey-resources/time2l-lambda-approvals"
     },
     "engines": {
-        "node": ">=10.13 <=10.16"
+        "node": ">=10.13 <=10.17"
     },
     "devDependencies": {
         "@babel/core": "^7.7.2",
@@ -46,6 +46,7 @@
         "nyc": "^14.1.1",
         "prettier": "^1.19.1",
         "serverless-content-encoding": "^1.1.0",
+        "serverless-domain-manager": "^3.3.0",
         "serverless-nextjs-plugin": "^2.4.2",
         "serverless-offline": "^5.12.0",
         "serverless-plugin-split-stacks": "^1.9.2",
@@ -68,7 +69,7 @@
         "react-dom": "^16.11.0",
         "serverless": "^1.57.0",
         "source-map-support": "^0.5.16",
-      "next-aws-lambda": "latest"
+        "next-aws-lambda": "latest"
     },
     "husky": {
         "hooks": {

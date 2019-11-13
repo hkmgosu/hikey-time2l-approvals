@@ -61,3 +61,4 @@ dependency-graph.svg
 # next
 .next/
 .next
+sls-next-build

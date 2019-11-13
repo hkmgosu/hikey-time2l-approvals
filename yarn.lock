@@ -2068,6 +2068,21 @@ aws-sdk@^2.0.4, aws-sdk@^2.564.0, aws-sdk@^2.570.0:
     uuid "^3.3.2"
     xml2js "^0.4.19"
 
+aws-sdk@^2.490.0:
+  version "2.571.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.571.0.tgz#cc3eb65c6ba0f7e535d2ead2ba205f4fd1c4a91c"
+  integrity sha512-u1wW6Ib0OIT2VlyDXMRp+xyH8viGu775Ctx08F8AKT3i06plB7kcf+WXmmvBnLeCXKdmE87GT/0WKb3wruzH6g==
+  dependencies:
+    buffer "^4.9.1"
+    events "^1.1.1"
+    ieee754 "^1.1.13"
+    jmespath "^0.15.0"
+    querystring "^0.2.0"
+    sax "^1.2.1"
+    url "^0.10.3"
+    uuid "^3.3.2"
+    xml2js "^0.4.19"
+
 axobject-query@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.0.2.tgz#ea187abe5b9002b377f925d8bf7d1c561adf38f9"
@@ -2524,7 +2539,12 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
-caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001004, caniuse-lite@^1.0.30001006:
+caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001006:
+  version "1.0.30001010"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001010.tgz#397a14034d384260453cc81994f494626d34b938"
+  integrity sha512-RA5GH9YjFNea4ZQszdWgh2SC+dpLiRAg4VDQS2b5JRI45OxmbGrYocYHTa9x0bKMQUE7uvHkNPNffUr+pCxSGw==
+
+caniuse-lite@^1.0.30001004:
   version "1.0.30001009"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001009.tgz#69b77997b882a7aee6af24c8d7d2fa27ee41f348"
   integrity sha512-M3rEqHN6SaVjgo4bIik7HsGcWXsi+lI9WA0p51RPMFx5gXfduyOXWJrc0R4xBkSK1pgNf4CNgy5M+6H+WiEP8g==
@@ -8950,6 +8970,14 @@ serverless-content-encoding@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/serverless-content-encoding/-/serverless-content-encoding-1.1.0.tgz#d284fb16ac25f8603d42dcc3afa826438baf5b01"
   integrity sha1-0oT7Fqwl+GA9QtzDr6gmQ4uvWwE=
+
+serverless-domain-manager@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/serverless-domain-manager/-/serverless-domain-manager-3.3.0.tgz#758b928f5a146b3e925e5cd9d6e0043879805eee"
+  integrity sha512-oGZDNzI/Y15QusC/E+Zm6VaXoAwnbQnm6e6wyXPFDi1Sqoeo8xarKNj0fZODhEf4DKggAqxVfkiXjhuC8yZu0Q==
+  dependencies:
+    aws-sdk "^2.490.0"
+    chalk "^2.4.1"
 
 serverless-nextjs-plugin@^2.4.2:
   version "2.4.2"

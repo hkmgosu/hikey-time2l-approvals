@@ -1,6 +1,6 @@
 const compat = require('next-aws-lambda');
 
-export default page => {
+module.exports = page => {
     return (event, context) => {
         // do any stuff you like
         console.log({ event });

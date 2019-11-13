@@ -10,7 +10,13 @@ class Approvals extends React.Component {
         };
     }
     render() {
-        return <h1>Post page: {this.props.referenceId}</h1>;
+        return (
+            <div>
+                <h1>Path parameters: </h1>
+                <h2>userId: {this.props.userId} </h2>
+                <h2>referenceId: {this.props.referenceId} </h2>
+            </div>
+        );
     }
 }
 

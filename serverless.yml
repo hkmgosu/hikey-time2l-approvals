@@ -43,6 +43,11 @@ provider:
           Resource: 'arn:aws:s3:::${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}/*'
 
 custom:
+    customDomain:
+        domainName: ${file(.environment/env.yml):${self:provider.stage}.APP_HOSTNAME}
+        stage: ${self:provider.stage}
+        createRoute53Record: true
+        endpointType: 'regional'
     webpack:
         webpackConfig: 'webpack.config.js'
         includeModules:
@@ -61,7 +66,7 @@ custom:
         stackConcurrency: 5
         resourceConcurrency: 10
     serverless-nextjs:
-        cloudFront: false
+        cloudFront: ${file(.environment/cloudfront.yml):${self:provider.stage}}
         customHandler: ./src/handlers/approvals/handler.js
         routes:
             - src: approvals
@@ -107,5 +112,7 @@ resources:
                     Ref: 'ApiGatewayRestApi'
 
 plugins:
+    - serverless-plugin-warmup
     - serverless-nextjs-plugin
-    - serverless-offline
+    - serverless-plugin-tracing
+    - serverless-domain-manager
