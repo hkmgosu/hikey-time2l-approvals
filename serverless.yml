@@ -1,0 +1,111 @@
+service: time2l-lambda-approvals
+
+provider:
+    name: aws
+    runtime: nodejs10.x
+    stage: ${opt:stage, 'dev'}
+    region: ${opt:region, 'eu-central-1'}
+    environment: ${file(.environment/env.yml):${self:provider.stage}}
+    tracing: true
+    vpc: ${file(.environment/vpc.yml)}
+    timeout: 15
+    iamRoleStatements:
+        - Effect: 'Allow'
+          Action:
+              - 'xray:PutTraceSegments'
+              - 'xray:PutTelemetryRecords'
+          Resource:
+              - '*'
+        - Effect: 'Allow'
+          Action:
+              - 'lambda:InvokeFunction'
+          Resource:
+              - Fn::Join:
+                    - ':'
+                    - - arn:aws:lambda
+                      - Ref: AWS::Region
+                      - Ref: AWS::AccountId
+                      - function:${self:service}-${opt:stage, self:provider.stage}-*
+        - Effect: 'Allow'
+          Action:
+              - 'ses:SendEmail'
+              - 'ses:SendRawEmail'
+          Resource: '*'
+        - Effect: 'Allow'
+          Action:
+              - 's3:ListBucket'
+          Resource: 'arn:aws:s3:::${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}'
+        - Effect: 'Allow'
+          Action:
+              - 's3:PutObject'
+              - 's3:GetObject'
+              - 's3:DeleteObject'
+          Resource: 'arn:aws:s3:::${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}/*'
+
+custom:
+    webpack:
+        webpackConfig: 'webpack.config.js'
+        includeModules:
+            forceExclude:
+                - aws-sdk
+        packager: 'yarn'
+    contentEncoding:
+        minimumCompressionSize: 0
+    warmup:
+        default: true
+        prewarm: true
+    splitStacks:
+        perFunction: true
+        perType: false
+        perGroupFunction: false
+        stackConcurrency: 5
+        resourceConcurrency: 10
+    serverless-nextjs:
+        cloudFront: false
+        customHandler: ./src/handlers/approvals/handler.js
+        routes:
+            - src: approvals
+              path: approvals/{userId}/{referenceId}
+              request:
+                  parameters:
+                      paths:
+                          userId: true
+                          referenceId: true
+
+    corsheaders:
+        origin: '*' # <-- Specify allowed origin
+        headers: # <-- Specify allowed headers
+            - Accept
+            - Content-Type
+            - X-Amz-Date
+            - Authorization
+            - Access-Control-Allow-Origin
+            - Authorization-Bearer
+            - X-Api-Key
+            - X-Amz-Security-Token
+            - X-Amz-User-Agent
+        allowCredentials: false
+
+package:
+    individually: true
+    exclude:
+        - ./**
+
+functions:
+    approvals: ${file(functions/approvals.yml)}
+
+resources:
+    Resources:
+        GatewayResponseDefault4XX:
+            Type: 'AWS::ApiGateway::GatewayResponse'
+            Properties:
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+                ResponseType: DEFAULT_4XX
+                RestApiId:
+                    Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-nextjs-plugin
+    - serverless-offline

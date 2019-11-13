@@ -1,0 +1,11 @@
+handler: src/handlers/approvals/handler.default
+events:
+    - http:
+          path: approvals-backend/{userId}/{referenceId}
+          method: get
+          cors: ${self:custom.corsheaders}
+          request:
+              parameters:
+                  paths:
+                      userId: true
+                      referenceId: true

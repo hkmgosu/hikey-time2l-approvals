@@ -1,0 +1,11 @@
+{
+    "extends": ["airbnb", "prettier"],
+    "plugins": ["promise"],
+    "rules": {
+        "one-var": "off",
+        "no-underscore-dangle": "off",
+        "no-unused-vars": "warn",
+        "react/destructuring-assignment": "off",
+        "import/prefer-default-export": "warn"
+    }
+}
