@@ -67,6 +67,7 @@ custom:
         resourceConcurrency: 10
     serverless-nextjs:
         cloudFront: ${file(.environment/cloudfront.yml):${self:provider.stage}}
+        assetsBucketName: ${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}
         customHandler: ./src/handlers/approvals/handler.js
         routes:
             - src: approvals
@@ -116,3 +117,4 @@ plugins:
     - serverless-nextjs-plugin
     - serverless-plugin-tracing
     - serverless-domain-manager
+    - serverless-offline

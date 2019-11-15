@@ -2,6 +2,7 @@ const compat = require('next-aws-lambda');
 
 module.exports = page => {
     return (event, context) => {
+        console.log({ env: process.env });
         // do any stuff you like
         console.log({ event });
         console.log({ context });

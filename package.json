@@ -9,7 +9,9 @@
         "deploy:production": "NODE_ENV=production yarn deploy:env",
         "lint": "eslint ./src",
         "preinstall": "node -e 'if(!/yarn\\.js$/.test(process.env.npm_execpath))throw new Error(\"Please use `yarn install` instead of `npm install`\")'",
-        "serve": "npx sls offline start --stage local --local --watch"
+        "serve": "npx sls offline start --stage local --local --watch",
+        "next": "next dev -p 3000",
+        "next-build": "next build"
     },
     "author": "",
     "license": "MIT",
@@ -62,14 +64,18 @@
         "@babel/runtime": "^7.7.2",
         "@hapi/joi": "^16.1.7",
         "@hapi/joi-date": "^2.0.1",
+        "@material-ui/core": "4.6.1",
+        "@material-ui/icons": "4.5.1",
         "aws-sdk": "^2.570.0",
+        "clsx": "1.0.4",
         "moment": "^2.24.0",
-        "next": "^9.1.3",
+        "next": "^8.1.0",
+        "next-aws-lambda": "latest",
+        "prop-types": "15.7.2",
         "react": "^16.11.0",
         "react-dom": "^16.11.0",
         "serverless": "^1.57.0",
-        "source-map-support": "^0.5.16",
-        "next-aws-lambda": "latest"
+        "source-map-support": "^0.5.16"
     },
     "husky": {
         "hooks": {
