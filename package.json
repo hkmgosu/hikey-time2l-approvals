@@ -10,8 +10,8 @@
         "lint": "eslint ./src",
         "preinstall": "node -e 'if(!/yarn\\.js$/.test(process.env.npm_execpath))throw new Error(\"Please use `yarn install` instead of `npm install`\")'",
         "serve": "npx sls offline start --stage local --local --watch",
-        "next": "next dev -p 3000",
-        "next-build": "next build"
+        "next": "NODE_ENV=local next dev -p 3000",
+        "next-build": "NODE_ENV=local next build"
     },
     "author": "",
     "license": "MIT",
