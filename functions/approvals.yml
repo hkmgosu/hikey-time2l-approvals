@@ -1,4 +1,4 @@
-handler: src/handlers/approvals/handler.default
+handler: src/handlers/approvals/handler
 events:
     - http:
           path: approvals-backend/{userId}/{referenceId}

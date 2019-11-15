@@ -9,8 +9,8 @@
         "deploy:production": "NODE_ENV=production yarn deploy:env",
         "lint": "eslint ./src",
         "preinstall": "node -e 'if(!/yarn\\.js$/.test(process.env.npm_execpath))throw new Error(\"Please use `yarn install` instead of `npm install`\")'",
-        "serve": "npx sls offline start --stage local --local --watch",
-        "next": "NODE_ENV=local next dev -p 3000",
+        "serve": "yarn next-build && npx sls offline start --stage local --local --watch",
+        "next": "NODE_ENV=local next dev -p 3001",
         "next-build": "NODE_ENV=local next build"
     },
     "author": "",
@@ -55,10 +55,7 @@
         "serverless-plugin-tracing": "^2.0.0",
         "serverless-plugin-warmup": "^4.7.1-rc.1",
         "serverless-prune-plugin": "^1.4.1",
-        "serverless-webpack": "^5.3.1",
-        "sinon": "^7.5.0",
-        "webpack": "^4.41.2",
-        "webpack-node-externals": "^1.7.2"
+        "sinon": "^7.5.0"
     },
     "dependencies": {
         "@babel/runtime": "^7.7.2",
