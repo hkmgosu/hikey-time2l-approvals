@@ -7,7 +7,6 @@ provider:
     region: ${opt:region, 'eu-central-1'}
     environment: ${file(.environment/env.yml):${self:provider.stage}}
     tracing: true
-    vpc: ${file(.environment/vpc.yml)}
     timeout: 15
     iamRoleStatements:
         - Effect: 'Allow'
@@ -62,7 +61,6 @@ custom:
     serverless-nextjs:
         cloudFront: ${file(.environment/cloudfront.yml):${self:provider.stage}}
         assetsBucketName: ${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}
-        customHandler: ./src/handlers/approvals/handler.js
         routes:
             - src: approvals
               path: approvals/{userId}/{referenceId}
@@ -90,9 +88,6 @@ package:
     individually: true
     exclude:
         - ./**
-
-functions:
-    approvals: ${file(functions/approvals.yml)}
 
 resources:
     Resources:
