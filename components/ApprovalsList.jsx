@@ -10,14 +10,20 @@ import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import Button from '@material-ui/core/Button';
 import TopAppBar from '../components/TopAppBar';
+import {
+    preApproveAssetEntries,
+    rejectAssetEntries
+} from '../app/apiCalls/approvals';
 
 import moment from 'moment';
+import _ from 'lodash';
 
 const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
         backgroundColor: theme.palette.background.paper,
-        marginBottom: 120
+        marginBottom: 120,
+        paddingTop: 0
     },
     avatar: {
         fontSize: 'small',
@@ -37,9 +43,11 @@ const useStyles = makeStyles(theme => ({
         marginLeft: 9
     },
     bottomGrid: {
-        position: 'fixed',
         top: 'auto',
-        bottom: 30
+        bottom: 0,
+        position: 'fixed',
+        height: 60,
+        backgroundColor: '#fff'
     },
     rejectButton: {
         backgroundColor: theme.palette.error.main,
@@ -53,12 +61,33 @@ const useStyles = makeStyles(theme => ({
     },
     noResult: {
         marginTop: 30
+    },
+    entryAsset: {
+        width: '100%',
+        backgroundColor: '#b2b2ca'
     }
 }));
 
 export default function ApprovalList(props) {
     const classes = useStyles();
-    const [checked, setChecked] = React.useState([1]);
+    const [formError, setFormError] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const [checked, setChecked] = React.useState([]);
+    const [approvalList, setApprovalList] = React.useState(
+        _.orderBy(props.assetTimeEntries, ['start'], ['desc'])
+    );
+    const [newEntriesList, setNewEntriesList] = React.useState(
+        props.defaultEntriesList
+    );
+
+    React.useEffect(() => {
+        window.scrollTo(0, 0);
+        const filterApprovedByList = [];
+        approvalList.map(value => {
+            if (!value.preApproved) filterApprovedByList.push(value);
+        });
+        setApprovalList(filterApprovedByList);
+    }, []);
 
     const handleToggle = value => () => {
         const currentIndex = checked.indexOf(value);
@@ -69,15 +98,55 @@ export default function ApprovalList(props) {
         } else {
             newChecked.splice(currentIndex, 1);
         }
-
         setChecked(newChecked);
     };
 
+    const handleApprove = async () => {
+        setLoading(true);
+        const res = await preApproveAssetEntries(
+            props.userId,
+            props.referenceId,
+            checked
+        );
+
+        checked.map((entryId, index) => {
+            let entry = approvalList.find(value => entryId === value._id);
+            if (entry) {
+                _.remove(approvalList, value => value._id === entry._id);
+                _.remove(newEntriesList, value => value._id === entry._id);
+                entry = {
+                    ...entry,
+                    ...res.data.find(value => entryId === value._id)
+                };
+                approvalList.push(entry);
+                newEntriesList.push(entry);
+            }
+        });
+        setLoading(false);
+        const filterApprovedByList = [];
+        approvalList.map(value => {
+            if (!value.preApproved) filterApprovedByList.push(value);
+        });
+        props.handleUpdateFilteredList(filterApprovedByList);
+    };
+
+    const handleReject = async () => {
+        const data = await rejectAssetEntries(
+            props.userId,
+            props.referenceId,
+            checked
+        );
+    };
+
+    const handleBackButton = () => {
+        props.handleShowListByFilter(true, newEntriesList);
+    };
+
     const ApprovalBody = () => {
-        if (!props.assetTimeEntries) {
+        if (!approvalList) {
             return (
                 <div className={classes.noResult}>
-                    <Typography align="center" variant="h2" color="primary">
+                    <Typography align="center" variant="h4" color="primary">
                         NO RESULT
                     </Typography>
                 </div>
@@ -87,10 +156,10 @@ export default function ApprovalList(props) {
         return (
             <React.Fragment>
                 <List className={classes.root}>
-                    {props.assetTimeEntries.map((value, index) => {
+                    {approvalList.map((value, index) => {
                         const labelId = `checkbox-list-secondary-label-${index}`;
                         return (
-                            <ListItem key={index}>
+                            <ListItem key={index} divider={true}>
                                 <ListItemAvatar
                                     className={classes.ListItemAvatar}
                                 >
@@ -101,9 +170,7 @@ export default function ApprovalList(props) {
                                             color="primary"
                                             noWrap
                                         >
-                                            {moment(
-                                                value.created.datetime
-                                            ).format('MMM')}
+                                            {moment(value.end).format('MMM')}
                                         </Typography>
                                         <Typography
                                             className={classes.title}
@@ -111,9 +178,7 @@ export default function ApprovalList(props) {
                                             color="primary"
                                             noWrap
                                         >
-                                            {moment(
-                                                value.created.datetime
-                                            ).format('DD')}
+                                            {moment(value.end).format('DD')}
                                         </Typography>
                                     </span>
                                 </ListItemAvatar>
@@ -130,15 +195,17 @@ export default function ApprovalList(props) {
                                         className={classes.inline}
                                         color="textPrimary"
                                     >
-                                        {`${moment(
-                                            value.start
-                                        ).hour()}:${moment(
-                                            value.start
-                                        ).minute()} - ${moment(
-                                            value.end
-                                        ).hour()}:${moment(
-                                            value.end
-                                        ).minute()}`}
+                                        {`${moment(value.start).hour()}:${
+                                            moment(value.start).minute() < 10
+                                                ? '0' +
+                                                  moment(value.start).minute()
+                                                : moment(value.start).minute()
+                                        } - ${moment(value.end).hour()}:${
+                                            moment(value.end).minute() < 10
+                                                ? '0' +
+                                                  moment(value.end).minute()
+                                                : moment(value.end).minute()
+                                        }`}
                                     </Typography>
                                     <Typography
                                         component="span"
@@ -175,8 +242,10 @@ export default function ApprovalList(props) {
                                     <Checkbox
                                         edge="end"
                                         color="primary"
-                                        onChange={handleToggle(value)}
-                                        checked={checked.indexOf(value) !== -1}
+                                        onChange={handleToggle(value._id)}
+                                        checked={
+                                            checked.indexOf(value._id) !== -1
+                                        }
                                         inputProps={{
                                             'aria-labelledby': labelId
                                         }}
@@ -184,6 +253,9 @@ export default function ApprovalList(props) {
                                     <IconButton
                                         className={classes.detailButton}
                                         aria-label="detail"
+                                        onClick={() =>
+                                            props.handleEditViewEntry(value)
+                                        }
                                     >
                                         <KeyboardArrowRight />
                                     </IconButton>
@@ -197,13 +269,13 @@ export default function ApprovalList(props) {
                     direction="row"
                     justify="center"
                     alignItems="center"
-                    spacing={3}
                     className={classes.bottomGrid}
                 >
                     <Button
                         variant="contained"
                         className={classes.rejectButton}
                         size="large"
+                        onClick={handleReject}
                     >
                         Reject
                     </Button>
@@ -211,6 +283,8 @@ export default function ApprovalList(props) {
                         variant="contained"
                         className={classes.approveButton}
                         size="large"
+                        onClick={handleApprove}
+                        disabled={loading}
                     >
                         Approve
                     </Button>
@@ -221,7 +295,23 @@ export default function ApprovalList(props) {
 
     return (
         <React.Fragment>
-            <TopAppBar title="Select record" position="static" />
+            <TopAppBar
+                title="Select record"
+                position="static"
+                enableBackButton={true}
+                handleBackButton={handleBackButton}
+            />
+            <ListItem style={{ padding: 0 }}>
+                <Typography
+                    align="center"
+                    component="span"
+                    variant="caption"
+                    color="primary"
+                    className={classes.entryAsset}
+                >
+                    {`${approvalList[0].asset.assetId}`}
+                </Typography>
+            </ListItem>
             <ApprovalBody />
         </React.Fragment>
     );
