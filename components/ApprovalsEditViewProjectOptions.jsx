@@ -1,14 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import TopAppBar from './TopAppBar';
 import InputBase from '@material-ui/core/InputBase';
 import Paper from '@material-ui/core/Paper';
 import SearchIcon from '@material-ui/icons/Search';
+import TopAppBar from './TopAppBar';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -65,11 +65,11 @@ export default function ApprovalsEditViewProjectOptions(props) {
     };
 
     return (
-        <React.Fragment>
+        <>
             <TopAppBar
-                title={`Choose a project`}
+                title="Choose a project"
                 position="static"
-                enableBackButton={true}
+                enableBackButton
                 handleBackButton={handleBackButton}
             />
             <List className={classes.root}>
@@ -81,20 +81,20 @@ export default function ApprovalsEditViewProjectOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder={`search a project...`}
+                            placeholder="search a project..."
                             required
                             inputProps={{ 'aria-label': 'search...' }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
                 </ListItem>
-                {filteredOptions.map((option, index) => {
+                {filteredOptions.map(option => {
                     return option.crews ? (
-                        option.crews.map((crew, indexCrew) => {
+                        option.crews.map(crew => {
                             return (
                                 <ListItem
-                                    key={indexCrew}
-                                    divider={true}
+                                    key={`option-${option.projectId}`}
+                                    divider
                                     button
                                     onClick={() => {
                                         handleSelectedProject(option);
@@ -139,8 +139,8 @@ export default function ApprovalsEditViewProjectOptions(props) {
                         })
                     ) : (
                         <ListItem
-                            key={index}
-                            divider={true}
+                            key={`project-${option.projectId}`}
+                            divider
                             button
                             onClick={() => {
                                 handleSelectedProject(option);
@@ -173,13 +173,20 @@ export default function ApprovalsEditViewProjectOptions(props) {
                                     variant="body2"
                                     className={classes.projectListItemText}
                                 >
-                                    {`Team: -`}
+                                    Team: -
                                 </Typography>
                             </Grid>
                         </ListItem>
                     );
                 })}
             </List>
-        </React.Fragment>
+        </>
     );
 }
+
+ApprovalsEditViewProjectOptions.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    projects: PropTypes.array.isRequired,
+    handleBackButton: PropTypes.func.isRequired,
+    handleSelectedProject: PropTypes.func.isRequired
+};

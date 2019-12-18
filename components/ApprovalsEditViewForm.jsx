@@ -1,4 +1,6 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -9,7 +11,6 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import Button from '@material-ui/core/Button';
-import TopAppBar from './TopAppBar';
 import {
     MuiPickersUtilsProvider,
     KeyboardTimePicker,
@@ -17,6 +18,12 @@ import {
 } from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 import moment from 'moment';
+import TopAppBar from './TopAppBar';
+import {
+    PREAPPROVALS_LEVEL,
+    APPROVALS_LEVEL,
+    AUTHORIZATIONS_LEVEL
+} from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -82,45 +89,49 @@ const useStyles = makeStyles(theme => ({
 
 export default function ApprovalsEditViewForm(props) {
     const classes = useStyles();
-    const [project, setProject] = React.useState(props.selectedProject);
-    const [task, setTask] = React.useState(props.selectedTask);
-    const [startDate, setStartDate] = React.useState(props.selectedStartDate);
-    const [endDate, setEndDate] = React.useState(props.selectedEndDate);
-    const [items, setItems] = React.useState(props.selectedItems);
-    const [note, setNote] = React.useState(props.selectedNote);
-    const [duration, setDuration] = React.useState(props.selectedDuration);
-    const [formError, setFormError] = React.useState(props.formError);
-    const [loading, setLoading] = React.useState(props.loading);
-
-    React.useEffect(() => {
-        handleDuration();
-        window.scrollTo(0, 0);
-    });
+    const [project] = React.useState(props.selectedProject);
+    const [task] = React.useState(props.selectedTask);
+    const [startDate] = React.useState(props.selectedStartDate);
+    const [endDate] = React.useState(props.selectedEndDate);
+    const [items] = React.useState(props.selectedItems);
+    const [note] = React.useState(props.selectedNote);
+    const [duration] = React.useState(props.selectedDuration);
+    const { level, options } = props;
 
     const handleBackButton = () => {
         props.handleBackButton();
     };
 
     const handleDuration = async () => {
-        const duration = await moment.duration(
+        const durationTemp = await moment.duration(
             moment(endDate).diff(moment(startDate))
         );
         await props.handleSelectedDuration(
-            `${parseInt(duration.asDays())} days ${duration.hours()}h ${
-                duration.minute < 10
-                    ? '0' + duration.minutes()
-                    : duration.minutes()
+            `${parseInt(
+                durationTemp.asDays(),
+                10
+            )} days ${durationTemp.hours()}h ${
+                durationTemp.minute < 10
+                    ? `0${durationTemp.minutes()}`
+                    : durationTemp.minutes()
             }min`
         );
     };
 
+    React.useEffect(() => {
+        /* global window */
+        window.scrollTo(0, 0);
+        handleDuration();
+    });
+
     const actualItems = [];
     if (items && items.length > 0) {
-        items.map((value, index) => {
+        // eslint-disable-next-line array-callback-return
+        items.map(value => {
             if (!value.actual) return;
             actualItems.push(
                 <Typography
-                    key={`item-${index}`}
+                    key={`item-${value.name}`}
                     component="span"
                     variant="body2"
                     className={classes.inline}
@@ -128,7 +139,7 @@ export default function ApprovalsEditViewForm(props) {
                 >
                     {`${
                         value.name && value.name.length > 18
-                            ? value.name.substring(0, 18) + '...'
+                            ? `${value.name.substring(0, 18)}...`
                             : value.name
                     }: ${value.actual}`}
                 </Typography>
@@ -142,7 +153,7 @@ export default function ApprovalsEditViewForm(props) {
                 variant="body2"
                 style={{ color: 'grey ' }}
             >
-                {`Optional: Please select a project with items`}
+                Optional: Please select a project with items
             </Typography>
         );
 
@@ -156,20 +167,27 @@ export default function ApprovalsEditViewForm(props) {
                 variant="body2"
                 style={{ color: 'grey ' }}
             >
-                {`Optional: Please select items`}
+                Optional: Please select items
             </Typography>
         );
     };
 
+    const enableEditButtonStyle = {
+        display:
+            level === APPROVALS_LEVEL || level === AUTHORIZATIONS_LEVEL
+                ? 'none'
+                : 'inherit'
+    };
+
     return (
-        <React.Fragment>
+        <>
             <TopAppBar
                 title="Timesheet"
                 position="static"
-                enableBackButton={true}
+                enableBackButton
                 handleBackButton={handleBackButton}
             />
-            <React.Fragment>
+            <>
                 <List className={classes.root}>
                     <ListItem style={{ padding: 0 }}>
                         <Typography
@@ -182,7 +200,7 @@ export default function ApprovalsEditViewForm(props) {
                             {`${props.entry.created.author} - ${props.entry.asset.assetId}`}
                         </Typography>
                     </ListItem>
-                    <ListItem style={{ padding: 0 }} divider={true}>
+                    <ListItem style={{ padding: 0 }} divider>
                         <Typography
                             align="center"
                             variant="h6"
@@ -191,7 +209,7 @@ export default function ApprovalsEditViewForm(props) {
                             {`Total: ${duration}`}
                         </Typography>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Project"
@@ -228,16 +246,14 @@ export default function ApprovalsEditViewForm(props) {
                             direction="row"
                             justify="flex-end"
                             alignItems="center"
-                            style={{
-                                width: 48
-                            }}
+                            style={{ width: 48, ...enableEditButtonStyle }}
                         >
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="select a project"
                                 onClick={() =>
                                     props.handleShowEditViewProjectOptions(
-                                        props.options.projects
+                                        options.projects
                                     )
                                 }
                             >
@@ -245,7 +261,7 @@ export default function ApprovalsEditViewForm(props) {
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Task"
@@ -283,7 +299,7 @@ export default function ApprovalsEditViewForm(props) {
                                     variant="body2"
                                     style={{ color: 'grey ' }}
                                 >
-                                    {`Optional: Please select a task`}
+                                    Optional: Please select a task
                                 </Typography>
                             )}
                         </Grid>
@@ -292,13 +308,15 @@ export default function ApprovalsEditViewForm(props) {
                             direction="row"
                             justify="flex-end"
                             alignItems="center"
-                            style={{
-                                width: 48
-                            }}
+                            style={{ width: 48, ...enableEditButtonStyle }}
                         >
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="select a task"
+                                disabled={
+                                    level === APPROVALS_LEVEL &&
+                                    level === AUTHORIZATIONS_LEVEL
+                                }
                                 onClick={() =>
                                     props.handleShowEditViewTaskOptions(
                                         project.tasks ? project.tasks : []
@@ -309,7 +327,7 @@ export default function ApprovalsEditViewForm(props) {
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Items"
@@ -339,9 +357,7 @@ export default function ApprovalsEditViewForm(props) {
                             direction="row"
                             justify="flex-end"
                             alignItems="center"
-                            style={{
-                                width: 48
-                            }}
+                            style={{ width: 48, ...enableEditButtonStyle }}
                         >
                             <IconButton
                                 className={classes.detailButton}
@@ -349,12 +365,16 @@ export default function ApprovalsEditViewForm(props) {
                                 onClick={() =>
                                     props.handleShowEditViewItemsOptions(items)
                                 }
+                                disabled={
+                                    level === APPROVALS_LEVEL &&
+                                    level === AUTHORIZATIONS_LEVEL
+                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Start Time"
@@ -380,7 +400,6 @@ export default function ApprovalsEditViewForm(props) {
                                     onChange={value => {
                                         props.handleStartDate(new Date(value));
                                     }}
-                                    onAccept={value => {}}
                                     InputProps={{
                                         disableUnderline: true
                                     }}
@@ -389,14 +408,25 @@ export default function ApprovalsEditViewForm(props) {
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date'
+                                        'aria-label': 'change start date',
+                                        disabled:
+                                            level === 'approvals' &&
+                                            level === 'authorizations'
                                     }}
-                                    keyboardIcon={<KeyboardArrowRight />}
+                                    keyboardIcon={(
+                                        <KeyboardArrowRight
+                                            style={enableEditButtonStyle}
+                                        />
+                                      )}
+                                    disabled={
+                                        level === APPROVALS_LEVEL ||
+                                        level === AUTHORIZATIONS_LEVEL
+                                    }
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Start Date"
@@ -436,12 +466,20 @@ export default function ApprovalsEditViewForm(props) {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change start date'
                                     }}
-                                    keyboardIcon={<KeyboardArrowRight />}
+                                    keyboardIcon={(
+                                        <KeyboardArrowRight
+                                            style={enableEditButtonStyle}
+                                        />
+                                      )}
+                                    disabled={
+                                        level === APPROVALS_LEVEL ||
+                                        level === AUTHORIZATIONS_LEVEL
+                                    }
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="End Date"
@@ -470,12 +508,9 @@ export default function ApprovalsEditViewForm(props) {
                                     emptyLabel=""
                                     value={endDate}
                                     minDate={startDate}
-                                    minDateMessage={`Date should not be before start date`}
+                                    minDateMessage="Date should not be before start date"
                                     onChange={value => {
                                         props.handleEndDate(new Date(value));
-                                    }}
-                                    onError={(error, value) => {
-                                        setFormError(error ? true : false);
                                     }}
                                     InputProps={{
                                         disableUnderline: true
@@ -487,12 +522,20 @@ export default function ApprovalsEditViewForm(props) {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change start date'
                                     }}
-                                    keyboardIcon={<KeyboardArrowRight />}
+                                    keyboardIcon={(
+                                        <KeyboardArrowRight
+                                            style={enableEditButtonStyle}
+                                        />
+                                      )}
+                                    disabled={
+                                        level === APPROVALS_LEVEL ||
+                                        level === AUTHORIZATIONS_LEVEL
+                                    }
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="End Time"
@@ -517,10 +560,7 @@ export default function ApprovalsEditViewForm(props) {
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
                                     id="time-picker-end"
-                                    minDateMessage={`Date should not be before start time`}
-                                    onError={(error, value) => {
-                                        setFormError(error ? true : false);
-                                    }}
+                                    minDateMessage="Date should not be before start time"
                                     emptyLabel=""
                                     value={endDate}
                                     minDate={startDate}
@@ -537,12 +577,20 @@ export default function ApprovalsEditViewForm(props) {
                                     KeyboardButtonProps={{
                                         'aria-label': 'change start date'
                                     }}
-                                    keyboardIcon={<KeyboardArrowRight />}
+                                    keyboardIcon={(
+                                        <KeyboardArrowRight
+                                            style={enableEditButtonStyle}
+                                        />
+                                      )}
+                                    disabled={
+                                        level === APPROVALS_LEVEL ||
+                                        level === AUTHORIZATIONS_LEVEL
+                                    }
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider={true}>
+                    <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Note"
@@ -580,9 +628,7 @@ export default function ApprovalsEditViewForm(props) {
                             direction="row"
                             justify="flex-end"
                             alignItems="center"
-                            style={{
-                                width: 48
-                            }}
+                            style={{ width: 48, ...enableEditButtonStyle }}
                         >
                             <IconButton
                                 className={classes.detailButton}
@@ -609,7 +655,7 @@ export default function ApprovalsEditViewForm(props) {
                         className={classes.updateButton}
                         size="large"
                         onClick={props.handleUpdate}
-                        disabled={formError}
+                        style={enableEditButtonStyle}
                     >
                         Update
                     </Button>
@@ -618,11 +664,46 @@ export default function ApprovalsEditViewForm(props) {
                         className={classes.approveButton}
                         size="large"
                         onClick={props.handleApprove}
+                        style={{
+                            backgroundColor:
+                                level === PREAPPROVALS_LEVEL ||
+                                level === APPROVALS_LEVEL
+                                    ? classes.approveButton.backgroundColor
+                                    : '#A3CF00'
+                        }}
                     >
-                        Approve
+                        {`${
+                            level === PREAPPROVALS_LEVEL ||
+                            level === APPROVALS_LEVEL
+                                ? 'Approve'
+                                : 'Authorize'
+                        }`}
                     </Button>
                 </Grid>
-            </React.Fragment>
-        </React.Fragment>
+            </>
+        </>
     );
 }
+
+ApprovalsEditViewForm.propTypes = {
+    level: PropTypes.string.isRequired,
+    entry: PropTypes.object.isRequired,
+    options: PropTypes.object.isRequired,
+    handleApprove: PropTypes.func.isRequired,
+    handleUpdate: PropTypes.func.isRequired,
+    handleBackButton: PropTypes.func.isRequired,
+    selectedProject: PropTypes.object.isRequired,
+    selectedDuration: PropTypes.string.isRequired,
+    handleSelectedDuration: PropTypes.func.isRequired,
+    selectedEndDate: PropTypes.instanceOf(Date).isRequired,
+    handleEndDate: PropTypes.func.isRequired,
+    selectedItems: PropTypes.array.isRequired,
+    selectedStartDate: PropTypes.instanceOf(Date).isRequired,
+    handleStartDate: PropTypes.func.isRequired,
+    selectedTask: PropTypes.string.isRequired,
+    selectedNote: PropTypes.string.isRequired,
+    handleShowEditViewItemsOptions: PropTypes.func.isRequired,
+    handleShowEditViewNoteModal: PropTypes.func.isRequired,
+    handleShowEditViewProjectOptions: PropTypes.func.isRequired,
+    handleShowEditViewTaskOptions: PropTypes.func.isRequired
+};

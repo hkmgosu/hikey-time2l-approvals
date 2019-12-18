@@ -1,15 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import TopAppBar from './TopAppBar';
 import InputBase from '@material-ui/core/InputBase';
 import Paper from '@material-ui/core/Paper';
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import TopAppBar from './TopAppBar';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -52,7 +53,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ApprovalsEditViewTaskOptions(props) {
+export default function ApprovalsEditViewItemsOptions(props) {
     const classes = useStyles();
     const [filteredOptions, setFilteredOptions] = React.useState(props.items);
 
@@ -78,8 +79,9 @@ export default function ApprovalsEditViewTaskOptions(props) {
     };
 
     const handleItemActual = async event => {
-        let actualItems = [];
-        await filteredOptions.map((op, index) => {
+        const actualItems = [];
+        // eslint-disable-next-line array-callback-return
+        await filteredOptions.map(op => {
             if (op && op.name.toLowerCase() === event.target.name) {
                 actualItems.push({ ...op, actual: event.target.value });
             } else actualItems.push({ ...op });
@@ -88,11 +90,11 @@ export default function ApprovalsEditViewTaskOptions(props) {
     };
 
     return (
-        <React.Fragment>
+        <>
             <TopAppBar
-                title={`Please choose your items`}
+                title="Please choose your items"
                 position="static"
-                enableBackButton={true}
+                enableBackButton
                 handleBackButton={handleBackButton}
             />
             <List className={classes.root}>
@@ -104,16 +106,16 @@ export default function ApprovalsEditViewTaskOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder={`search a item...`}
+                            placeholder="search a item..."
                             required
                             inputProps={{ 'aria-label': 'search...' }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
                 </ListItem>
-                {filteredOptions.map((option, index) => {
+                {filteredOptions.map(option => {
                     return (
-                        <ListItem key={index} divider={true}>
+                        <ListItem key={`option-${option.name}`} divider>
                             <Grid
                                 container
                                 direction="row"
@@ -136,8 +138,10 @@ export default function ApprovalsEditViewTaskOptions(props) {
                                         {`${
                                             option.name &&
                                             option.name.length > 18
-                                                ? option.name.substring(0, 18) +
-                                                  '...'
+                                                ? `${option.name.substring(
+                                                      0,
+                                                      18
+                                                  )}...`
                                                 : option.name
                                         }`}
                                     </Typography>
@@ -150,10 +154,10 @@ export default function ApprovalsEditViewTaskOptions(props) {
                                         {`${
                                             option.category &&
                                             option.category.length > 18
-                                                ? option.category.substring(
+                                                ? `${option.category.substring(
                                                       0,
                                                       18
-                                                  ) + '...'
+                                                  )}...`
                                                 : option.category
                                         }`}
                                     </Typography>
@@ -208,6 +212,13 @@ export default function ApprovalsEditViewTaskOptions(props) {
                     Update
                 </Button>
             </Grid>
-        </React.Fragment>
+        </>
     );
 }
+
+ApprovalsEditViewItemsOptions.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    items: PropTypes.array.isRequired,
+    handleSelectedItems: PropTypes.func.isRequired,
+    handleBackButton: PropTypes.func.isRequired
+};

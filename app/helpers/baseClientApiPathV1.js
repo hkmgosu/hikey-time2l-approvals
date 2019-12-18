@@ -1,14 +1,20 @@
 export default () => {
-    const host = window.location.host;
+    // eslint-disable-next-line no-undef
+    const { host } = window.location;
 
-    const apiSuffix =
+    let apiSuffix = '';
+
+    if (
         host.includes('localhost') ||
         host.includes('dev') ||
         host.includes('feature')
-            ? '-dev'
-            : host.includes('staging')
-            ? `-staging`
-            : '';
+    ) {
+        apiSuffix = '-dev';
+    }
+
+    if (host.includes('staging')) {
+        apiSuffix = `-staging`;
+    }
 
     return `https://time2l-api${apiSuffix}.hikey.io/v1/`;
 };

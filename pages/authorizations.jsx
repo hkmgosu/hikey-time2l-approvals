@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ApprovalsList from '../components/ApprovalsList';
 import ApprovalsEditView from '../components/ApprovalsEditView';
-import { listEntriesForApproval } from '../app/apiCalls/approvals';
+import { listEntriesForAuthorization } from '../app/apiCalls/approvals';
 import ApprovalsListByFilter from '../components/ApprovalsListByFilter';
 import {
     PREAPPROVALS_LEVEL,
@@ -10,18 +10,18 @@ import {
     AUTHORIZATIONS_LEVEL
 } from '../app/constants';
 
-class Approvals extends React.Component {
+class Authorizations extends React.Component {
     static async getInitialProps({ query }) {
         const { userId, referenceId } = query;
 
-        const res = await listEntriesForApproval(userId, referenceId);
+        const res = await listEntriesForAuthorization(userId, referenceId);
 
         return {
             userId,
             referenceId,
             assetTimeEntries: res.assetTimeEntries,
             options: { projects: res && res.projects },
-            level: APPROVALS_LEVEL
+            level: AUTHORIZATIONS_LEVEL
         };
     }
 
@@ -79,7 +79,7 @@ class Approvals extends React.Component {
     }
 
     render() {
-        const ApprovalsBody = () => {
+        const AuthorizationsBody = () => {
             if (this.state.isFilterList) {
                 return (
                     <ApprovalsListByFilter
@@ -150,13 +150,13 @@ class Approvals extends React.Component {
 
         return (
             <>
-                <ApprovalsBody />
+                <AuthorizationsBody />
             </>
         );
     }
 }
 
-Approvals.propTypes = {
+Authorizations.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
@@ -166,4 +166,4 @@ Approvals.propTypes = {
     referenceId: PropTypes.string.isRequired
 };
 
-export default Approvals;
+export default Authorizations;

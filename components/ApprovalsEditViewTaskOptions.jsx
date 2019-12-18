@@ -1,14 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import IconButton from '@material-ui/core/IconButton';
-import TopAppBar from './TopAppBar';
 import InputBase from '@material-ui/core/InputBase';
 import Paper from '@material-ui/core/Paper';
 import SearchIcon from '@material-ui/icons/Search';
+import TopAppBar from './TopAppBar';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -40,7 +40,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function ApprovalsEditViewTaskOptions(props) {
     const classes = useStyles();
-    const [filteredOptions, setFilteredOptions] = React.useState(props.tasks);
+    const { tasks } = props;
+    const [filteredOptions, setFilteredOptions] = React.useState(tasks);
 
     const handleBackButton = () => {
         props.handleBackButton(null);
@@ -52,7 +53,7 @@ export default function ApprovalsEditViewTaskOptions(props) {
     };
 
     const handleFilteredOptions = async event => {
-        const filtered = props.tasks.filter(op => {
+        const filtered = tasks.filter(op => {
             return (
                 op.toLowerCase().search(event.target.value.toLowerCase()) !== -1
             );
@@ -61,11 +62,11 @@ export default function ApprovalsEditViewTaskOptions(props) {
     };
 
     return (
-        <React.Fragment>
+        <>
             <TopAppBar
-                title={`Choose a task`}
+                title="Choose a task"
                 position="static"
-                enableBackButton={true}
+                enableBackButton
                 handleBackButton={handleBackButton}
             />
             <List className={classes.root}>
@@ -77,18 +78,18 @@ export default function ApprovalsEditViewTaskOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder={`search a task...`}
+                            placeholder="search a task..."
                             required
                             inputProps={{ 'aria-label': 'search...' }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
                 </ListItem>
-                {filteredOptions.map((option, index) => {
+                {filteredOptions.map(option => {
                     return (
                         <ListItem
-                            key={index}
-                            divider={true}
+                            key={`option-${option}`}
+                            divider
                             button
                             onClick={() => {
                                 handleSelectedTask(option);
@@ -114,6 +115,13 @@ export default function ApprovalsEditViewTaskOptions(props) {
                     );
                 })}
             </List>
-        </React.Fragment>
+        </>
     );
 }
+
+ApprovalsEditViewTaskOptions.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    tasks: PropTypes.array.isRequired,
+    handleBackButton: PropTypes.func.isRequired,
+    handleSelectedTask: PropTypes.func.isRequired
+};

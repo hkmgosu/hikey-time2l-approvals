@@ -38,8 +38,9 @@
         "eslint-plugin-import": "^2.18.2",
         "eslint-plugin-jsx-a11y": "^6.2.3",
         "eslint-plugin-mocha": "^6.2.1",
+        "eslint-plugin-prettier": "^3.1.2",
         "eslint-plugin-promise": "^4.2.1",
-        "eslint-plugin-react": "^7.16.0",
+        "eslint-plugin-react": "^7.17.0",
         "file-loader": "^4.2.0",
         "husky": "^3.0.9",
         "lint-staged": "^9.4.2",
@@ -67,6 +68,7 @@
         "@material-ui/pickers": "^3.2.8",
         "aws-sdk": "^2.570.0",
         "axios": "^0.19.0",
+        "babel-eslint": "^10.0.3",
         "clsx": "1.0.4",
         "lodash": "^4.17.15",
         "moment": "^2.24.0",
@@ -84,19 +86,19 @@
         }
     },
     "lint-staged": {
-        "test/**/*.js": [
+        "app/**/*.+(js|jsx)": [
             "npx prettier --write",
             "npx yarn lint --fix",
             "git add"
         ],
-        "spec/**/*.js": [
+        "components/**/*.+(js|jsx)": [
             "npx prettier --write",
             "npx yarn lint --fix",
             "git add"
         ],
-        "src/**/*.js": [
+        "pages/**/*.+(js|jsx)": [
             "npx prettier --write",
-            "npx yarn lint --fix",
+            "npx yarn lint",
             "git add"
         ],
         "**/*.md": [

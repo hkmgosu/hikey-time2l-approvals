@@ -62,8 +62,22 @@ custom:
         cloudFront: ${file(.environment/cloudfront.yml):${self:provider.stage}}
         assetsBucketName: ${file(.environment/env.yml):${self:provider.stage}.AWS_S3_BUCKET}
         routes:
+            - src: pre-approvals
+              path: pre-approvals/{userId}/{referenceId}
+              request:
+                  parameters:
+                      paths:
+                          userId: true
+                          referenceId: true
             - src: approvals
               path: approvals/{userId}/{referenceId}
+              request:
+                  parameters:
+                      paths:
+                          userId: true
+                          referenceId: true
+            - src: authorizations
+              path: authorizations/{userId}/{referenceId}
               request:
                   parameters:
                       paths:

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -9,14 +10,21 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import Button from '@material-ui/core/Button';
-import TopAppBar from '../components/TopAppBar';
-import {
-    preApproveAssetEntries,
-    rejectAssetEntries
-} from '../app/apiCalls/approvals';
-
 import moment from 'moment';
 import _ from 'lodash';
+import TopAppBar from './TopAppBar';
+import ApprovalsEditViewRejectReasonModal from './ApprovalsEditViewRejectReasonModal';
+import {
+    preApproveAssetEntries,
+    rejectAssetEntries,
+    approveAssetEntries,
+    authorizeAssetEntries
+} from '../app/apiCalls/approvals';
+import {
+    PREAPPROVALS_LEVEL,
+    APPROVALS_LEVEL,
+    AUTHORIZATIONS_LEVEL
+} from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -68,9 +76,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ApprovalList(props) {
+export default function ApprovalsList(props) {
     const classes = useStyles();
-    const [formError, setFormError] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [checked, setChecked] = React.useState([]);
     const [approvalList, setApprovalList] = React.useState(
@@ -79,13 +86,28 @@ export default function ApprovalList(props) {
     const [newEntriesList, setNewEntriesList] = React.useState(
         props.defaultEntriesList
     );
+    const [
+        showEditViewRejectReasonModal,
+        setShowEditViewRejectReasonModal
+    ] = React.useState(false);
+    const [rejectReason, setRejectReason] = React.useState('');
+
+    const { level, handleEditViewEntry } = props;
 
     React.useEffect(() => {
+        /* global window */
         window.scrollTo(0, 0);
         const filterApprovedByList = [];
+        // eslint-disable-next-line array-callback-return
         approvalList.map(value => {
-            if (!value.preApproved) filterApprovedByList.push(value);
+            if (level === PREAPPROVALS_LEVEL && !value.preApproved.status)
+                if (!value.rejected.status) filterApprovedByList.push(value);
+            if (level === APPROVALS_LEVEL && !value.approved.status)
+                if (!value.rejected.status) filterApprovedByList.push(value);
+            if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status)
+                if (!value.rejected.status) filterApprovedByList.push(value);
         });
+        setNewEntriesList(approvalList);
         setApprovalList(filterApprovedByList);
     }, []);
 
@@ -103,39 +125,79 @@ export default function ApprovalList(props) {
 
     const handleApprove = async () => {
         setLoading(true);
-        const res = await preApproveAssetEntries(
-            props.userId,
-            props.referenceId,
+        const req = {
+            userId: props.userId,
+            referenceId: props.referenceId,
             checked
-        );
+        };
+        let res = false;
+        if (level === PREAPPROVALS_LEVEL)
+            res = await preApproveAssetEntries(
+                req.userId,
+                req.referenceId,
+                checked
+            );
+        if (level === APPROVALS_LEVEL)
+            res = await approveAssetEntries(
+                req.userId,
+                req.referenceId,
+                checked
+            );
+        if (level === AUTHORIZATIONS_LEVEL)
+            res = await authorizeAssetEntries(
+                req.userId,
+                req.referenceId,
+                checked
+            );
 
-        checked.map((entryId, index) => {
+        if (!res) return;
+        // eslint-disable-next-line array-callback-return
+        checked.map(entryId => {
             let entry = approvalList.find(value => entryId === value._id);
             if (entry) {
-                _.remove(approvalList, value => value._id === entry._id);
-                _.remove(newEntriesList, value => value._id === entry._id);
+                _.remove(approvalList, appItem => appItem._id === entry._id);
+                _.remove(newEntriesList, newItem => newItem._id === entry._id);
                 entry = {
                     ...entry,
-                    ...res.data.find(value => entryId === value._id)
+                    ...res.data.find(resItem => entryId === resItem._id)
+                };
+                approvalList.push(entry);
+                newEntriesList.push(entry);
+            }
+        });
+
+        setLoading(false);
+        props.handleUpdateFilteredList(approvalList);
+    };
+
+    const handleReject = async reason => {
+        setLoading(true);
+        setRejectReason(reason);
+        const res = await rejectAssetEntries(
+            props.userId,
+            props.referenceId,
+            checked,
+            reason
+        );
+
+        if (!res) return;
+
+        // eslint-disable-next-line array-callback-return
+        checked.map(entryId => {
+            let entry = approvalList.find(value => entryId === value._id);
+            if (entry) {
+                _.remove(approvalList, appItem => appItem._id === entry._id);
+                _.remove(newEntriesList, newItem => newItem._id === entry._id);
+                entry = {
+                    ...entry,
+                    ...res.data.find(resItem => entryId === resItem._id)
                 };
                 approvalList.push(entry);
                 newEntriesList.push(entry);
             }
         });
         setLoading(false);
-        const filterApprovedByList = [];
-        approvalList.map(value => {
-            if (!value.preApproved) filterApprovedByList.push(value);
-        });
-        props.handleUpdateFilteredList(filterApprovedByList);
-    };
-
-    const handleReject = async () => {
-        const data = await rejectAssetEntries(
-            props.userId,
-            props.referenceId,
-            checked
-        );
+        props.handleUpdateFilteredList(approvalList);
     };
 
     const handleBackButton = () => {
@@ -143,7 +205,7 @@ export default function ApprovalList(props) {
     };
 
     const ApprovalBody = () => {
-        if (!approvalList) {
+        if (!approvalList || approvalList.length === 0) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h4" color="primary">
@@ -154,115 +216,124 @@ export default function ApprovalList(props) {
         }
 
         return (
-            <React.Fragment>
+            <>
                 <List className={classes.root}>
-                    {approvalList.map((value, index) => {
-                        const labelId = `checkbox-list-secondary-label-${index}`;
-                        return (
-                            <ListItem key={index} divider={true}>
-                                <ListItemAvatar
-                                    className={classes.ListItemAvatar}
-                                >
-                                    <span>
+                    {approvalList.length > 0 &&
+                        approvalList.map((value, index) => {
+                            const key = `item-${value.asset.assetId}-${index}`;
+                            return (
+                                <ListItem key={key} divider>
+                                    <ListItemAvatar
+                                        className={classes.ListItemAvatar}
+                                    >
+                                        <span>
+                                            <Typography
+                                                className={classes.title}
+                                                variant="caption"
+                                                color="primary"
+                                                noWrap
+                                            >
+                                                {moment(value.end).format(
+                                                    'MMM'
+                                                )}
+                                            </Typography>
+                                            <Typography
+                                                className={classes.title}
+                                                variant="subtitle2"
+                                                color="primary"
+                                                noWrap
+                                            >
+                                                {moment(value.end).format('DD')}
+                                            </Typography>
+                                        </span>
+                                    </ListItemAvatar>
+                                    <Grid
+                                        container
+                                        direction="column"
+                                        justify="space-around"
+                                        alignItems="flex-start"
+                                        spacing={0}
+                                    >
                                         <Typography
-                                            className={classes.title}
+                                            component="span"
                                             variant="caption"
-                                            color="primary"
-                                            noWrap
+                                            className={classes.inline}
+                                            color="textPrimary"
                                         >
-                                            {moment(value.end).format('MMM')}
+                                            {`${moment(value.start).hour()}:${
+                                                moment(value.start).minute() <
+                                                10
+                                                    ? `0${moment(
+                                                          value.start
+                                                      ).minute()}`
+                                                    : moment(
+                                                          value.start
+                                                      ).minute()
+                                            } - ${moment(value.end).hour()}:${
+                                                moment(value.end).minute() < 10
+                                                    ? `0${moment(
+                                                          value.end
+                                                      ).minute()}`
+                                                    : moment(value.end).minute()
+                                            }`}
                                         </Typography>
                                         <Typography
-                                            className={classes.title}
-                                            variant="subtitle2"
-                                            color="primary"
-                                            noWrap
+                                            component="span"
+                                            variant="body2"
+                                            className={classes.inline}
+                                            color="textPrimary"
                                         >
-                                            {moment(value.end).format('DD')}
+                                            {value.project.projectId}
                                         </Typography>
-                                    </span>
-                                </ListItemAvatar>
-                                <Grid
-                                    container
-                                    direction="column"
-                                    justify="space-around"
-                                    alignItems="flex-start"
-                                    spacing={0}
-                                >
-                                    <Typography
-                                        component="span"
-                                        variant="caption"
-                                        className={classes.inline}
-                                        color="textPrimary"
+                                        <Typography
+                                            component="span"
+                                            variant="body2"
+                                            className={classes.inline}
+                                            color="textPrimary"
+                                        >
+                                            {`${value.asset.assetId} (${value.asset.type})`}
+                                        </Typography>
+                                        <Typography
+                                            component="span"
+                                            variant="body2"
+                                            className={classes.inline}
+                                            color="textPrimary"
+                                        >
+                                            {value.duration}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid
+                                        container
+                                        direction="row"
+                                        justify="flex-end"
+                                        alignItems="center"
+                                        spacing={3}
                                     >
-                                        {`${moment(value.start).hour()}:${
-                                            moment(value.start).minute() < 10
-                                                ? '0' +
-                                                  moment(value.start).minute()
-                                                : moment(value.start).minute()
-                                        } - ${moment(value.end).hour()}:${
-                                            moment(value.end).minute() < 10
-                                                ? '0' +
-                                                  moment(value.end).minute()
-                                                : moment(value.end).minute()
-                                        }`}
-                                    </Typography>
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        className={classes.inline}
-                                        color="textPrimary"
-                                    >
-                                        {value.project.projectId}
-                                    </Typography>
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        className={classes.inline}
-                                        color="textPrimary"
-                                    >
-                                        {`${value.asset.assetId} (${value.asset.type})`}
-                                    </Typography>
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        className={classes.inline}
-                                        color="textPrimary"
-                                    >
-                                        {value.duration}
-                                    </Typography>
-                                </Grid>
-                                <Grid
-                                    container
-                                    direction="row"
-                                    justify="flex-end"
-                                    alignItems="center"
-                                    spacing={3}
-                                >
-                                    <Checkbox
-                                        edge="end"
-                                        color="primary"
-                                        onChange={handleToggle(value._id)}
-                                        checked={
-                                            checked.indexOf(value._id) !== -1
-                                        }
-                                        inputProps={{
-                                            'aria-labelledby': labelId
-                                        }}
-                                    />
-                                    <IconButton
-                                        className={classes.detailButton}
-                                        aria-label="detail"
-                                        onClick={() =>
-                                            props.handleEditViewEntry(value)
-                                        }
-                                    >
-                                        <KeyboardArrowRight />
-                                    </IconButton>
-                                </Grid>
-                            </ListItem>
-                        );
-                    })}
+                                        <Checkbox
+                                            edge="end"
+                                            color="primary"
+                                            onChange={handleToggle(value._id)}
+                                            checked={
+                                                checked.indexOf(value._id) !==
+                                                -1
+                                            }
+                                            inputProps={{
+                                                'aria-labelledby': key
+                                            }}
+                                        />
+                                        <IconButton
+                                            className={classes.detailButton}
+                                            aria-label="detail"
+                                            onClick={() => {
+                                                handleEditViewEntry(value);
+                                            }}
+                                        >
+                                            <KeyboardArrowRight />
+                                        </IconButton>
+                                    </Grid>
+                                </ListItem>
+                            );
+                        })}
                 </List>
                 <Grid
                     container
@@ -275,7 +346,8 @@ export default function ApprovalList(props) {
                         variant="contained"
                         className={classes.rejectButton}
                         size="large"
-                        onClick={handleReject}
+                        onClick={() => setShowEditViewRejectReasonModal(true)}
+                        disabled={loading || checked.length === 0}
                     >
                         Reject
                     </Button>
@@ -284,35 +356,61 @@ export default function ApprovalList(props) {
                         className={classes.approveButton}
                         size="large"
                         onClick={handleApprove}
-                        disabled={loading}
+                        disabled={loading || checked.length === 0}
+                        style={{
+                            backgroundColor:
+                                level === PREAPPROVALS_LEVEL ||
+                                level === APPROVALS_LEVEL
+                                    ? classes.approveButton.backgroundColor
+                                    : '#A3CF00'
+                        }}
                     >
-                        Approve
+                        {`${
+                            level === PREAPPROVALS_LEVEL ||
+                            level === APPROVALS_LEVEL
+                                ? 'Approve'
+                                : 'Authorize'
+                        }`}
                     </Button>
                 </Grid>
-            </React.Fragment>
+                <ApprovalsEditViewRejectReasonModal
+                    handleBackButton={show =>
+                        setShowEditViewRejectReasonModal(show)
+                    }
+                    reason={rejectReason}
+                    showEditViewRejectReasonModal={
+                        showEditViewRejectReasonModal
+                    }
+                    handleRejectReason={reason => {
+                        handleReject(reason);
+                    }}
+                />
+            </>
         );
     };
 
     return (
-        <React.Fragment>
+        <>
             <TopAppBar
                 title="Select record"
                 position="static"
-                enableBackButton={true}
+                enableBackButton
                 handleBackButton={handleBackButton}
             />
-            <ListItem style={{ padding: 0 }}>
-                <Typography
-                    align="center"
-                    component="span"
-                    variant="caption"
-                    color="primary"
-                    className={classes.entryAsset}
-                >
-                    {`${approvalList[0].asset.assetId}`}
-                </Typography>
-            </ListItem>
             <ApprovalBody />
-        </React.Fragment>
+        </>
     );
 }
+
+ApprovalsList.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    assetTimeEntries: PropTypes.array.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    defaultEntriesList: PropTypes.array.isRequired,
+    level: PropTypes.string.isRequired,
+    userId: PropTypes.string.isRequired,
+    referenceId: PropTypes.string.isRequired,
+    handleEditViewEntry: PropTypes.func.isRequired,
+    handleShowListByFilter: PropTypes.func.isRequired,
+    handleUpdateFilteredList: PropTypes.func.isRequired
+};

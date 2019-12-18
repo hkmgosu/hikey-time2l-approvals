@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -53,3 +54,10 @@ export default function TopAppBar(props) {
         </div>
     );
 }
+
+TopAppBar.propTypes = {
+    position: PropTypes.string.isRequired,
+    enableBackButton: PropTypes.bool.isRequired,
+    handleBackButton: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired
+};

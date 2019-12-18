@@ -1,11 +1,16 @@
 {
-    "extends": ["airbnb", "prettier"],
+    "extends": ["airbnb", "plugin:prettier/recommended"],
     "plugins": ["promise"],
     "rules": {
+        "prettier/prettier": "off",
         "one-var": "off",
         "no-underscore-dangle": "off",
         "no-unused-vars": "warn",
         "react/destructuring-assignment": "off",
-        "import/prefer-default-export": "warn"
+        "import/prefer-default-export": "warn",
+        "react/jsx-indent": [2, 4],
+        "react/jsx-indent-props": [2, 4],
+        "react/jsx-props-no-spreading": "warn",
+        "react/jsx-curly-newline": "off"
     }
 }

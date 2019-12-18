@@ -7,17 +7,18 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
-export default function ApprovalsEditViewNoteModal(props) {
-    const [value, setValue] = React.useState(props.note);
-    const [open] = React.useState(props.showEditViewNoteModal);
+export default function ApprovalsEditViewRejectReasonModal(props) {
+    const { reason, showEditViewRejectReasonModal } = props;
+    const [value, setValue] = React.useState(reason);
+    const [open] = React.useState(showEditViewRejectReasonModal);
 
     const handleCancel = () => {
-        props.handleBackButton(null);
+        props.handleBackButton(false);
     };
 
     const handleOk = () => {
-        props.handleSelectedNote(value);
-        props.handleBackButton(null);
+        props.handleRejectReason(value);
+        props.handleBackButton(false);
     };
 
     const handleChange = event => {
@@ -31,13 +32,13 @@ export default function ApprovalsEditViewNoteModal(props) {
             aria-labelledby="confirmation-dialog-title"
             open={open}
         >
-            <DialogTitle id="confirmation-dialog-title">Note</DialogTitle>
+            <DialogTitle id="confirmation-dialog-title">Reason</DialogTitle>
             <DialogContent dividers>
                 <TextareaAutosize
                     rows={6}
-                    aria-label="note"
-                    placeholder="write a note please..."
-                    defaultValue={props.note}
+                    aria-label="reason"
+                    placeholder="write a reason please..."
+                    defaultValue={reason}
                     onChange={handleChange}
                 />
             </DialogContent>
@@ -45,7 +46,11 @@ export default function ApprovalsEditViewNoteModal(props) {
                 <Button autoFocus onClick={handleCancel} color="primary">
                     Cancel
                 </Button>
-                <Button onClick={handleOk} color="primary">
+                <Button
+                    onClick={handleOk}
+                    color="primary"
+                    disabled={value.length === 0}
+                >
                     Ok
                 </Button>
             </DialogActions>
@@ -53,9 +58,9 @@ export default function ApprovalsEditViewNoteModal(props) {
     );
 }
 
-ApprovalsEditViewNoteModal.propTypes = {
-    note: PropTypes.string.isRequired,
+ApprovalsEditViewRejectReasonModal.propTypes = {
+    reason: PropTypes.string.isRequired,
     handleBackButton: PropTypes.func.isRequired,
-    showEditViewNoteModal: PropTypes.bool.isRequired,
-    handleSelectedNote: PropTypes.func.isRequired
+    showEditViewRejectReasonModal: PropTypes.bool.isRequired,
+    handleRejectReason: PropTypes.func.isRequired
 };

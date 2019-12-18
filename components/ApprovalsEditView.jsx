@@ -1,5 +1,6 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 import ApprovalsEditViewProjectOptions from './ApprovalsEditViewProjectOptions';
 import ApprovalsEditViewTaskOptions from './ApprovalsEditViewTaskOptions';
 import ApprovalsEditViewItemsOptions from './ApprovalsEditViewItemsOptions';
@@ -7,71 +8,18 @@ import ApprovalsEditViewNoteModal from './ApprovalsEditViewNoteModal';
 import ApprovalsEditViewForm from './ApprovalsEditViewForm';
 import {
     updateAssetEntry,
-    preApproveAssetEntries
+    preApproveAssetEntries,
+    approveAssetEntries,
+    authorizeAssetEntries
 } from '../app/apiCalls/approvals';
-
-const useStyles = makeStyles(theme => ({
-    root: {
-        width: '100%',
-        backgroundColor: theme.palette.background.paper,
-        marginBottom: 120,
-        paddingTop: 0
-    },
-    avatar: {
-        width: 60,
-        height: 60,
-        marginRight: 6
-    },
-    inline: {
-        display: 'inline'
-    },
-    avatarText: {
-        fontWeight: 600
-    },
-    ListItemAvatar: {
-        minWidth: 39
-    },
-    detailButton: {
-        marginLeft: 9
-    },
-    bottomGrid: {
-        top: 'auto',
-        bottom: 0,
-        position: 'fixed',
-        height: 60,
-        backgroundColor: '#fff'
-    },
-    updateButton: {
-        margin: 3
-    },
-    approveButton: {
-        backgroundColor: theme.palette.warning.main,
-        color: 'white',
-        margin: 3
-    },
-    noResult: {
-        marginTop: 30
-    },
-    projectListItemText: {
-        color: 'grey'
-    },
-    entryAuthorAsset: {
-        width: '100%',
-        backgroundColor: '#b2b2ca'
-    },
-    entryDuration: {
-        width: '100%',
-        color: theme.palette.warning.main,
-        minHeight: 30,
-        margin: 30
-    }
-}));
+import {
+    PREAPPROVALS_LEVEL,
+    APPROVALS_LEVEL,
+    AUTHORIZATIONS_LEVEL
+} from '../app/constants';
 
 export default function ApprovalsEditView(props) {
-    const classes = useStyles();
-
-    const [formError, setFormError] = React.useState(false);
-    const [loading, setLoading] = React.useState(false);
+    const { level, entry, userId, referenceId, options } = props;
 
     // views
     const [
@@ -94,7 +42,9 @@ export default function ApprovalsEditView(props) {
     const [selectedProject, setSelectedProject] = React.useState(
         props.entry.project
     );
-    const [selectedTask, setSelectedTask] = React.useState(props.entry.task);
+    const [selectedTask, setSelectedTask] = React.useState(
+        props.entry.task || ''
+    );
     const [selectedItems, setSelectedItems] = React.useState(props.entry.items);
     const [selectedStartDate, setSelectedStartDate] = React.useState(
         new Date(props.entry.start)
@@ -108,29 +58,23 @@ export default function ApprovalsEditView(props) {
     );
 
     React.useEffect(() => {
+        /* global window */
         window.scrollTo(0, 0);
-    }, []);
+    });
 
     const handleListBackButton = () => {
         props.handleEditViewEntry(null);
     };
 
-    const handleShowEditViewInputOptions = () => {
-        // list of values to reset
-        setShowEditViewProjectOptions(null);
-        setShowEditViewTaskOptions(null);
-        setShowEditViewItemsOptions(null);
-        setShowEditViewNoteModal(null);
-    };
-
     const handleUpdate = async () => {
         const actualItems = [];
         selectedItems.map(item => {
-            delete item.active;
-            if (item.actual) actualItems.push(item);
+            const tempItem = { ...item };
+            delete tempItem.active;
+            return actualItems.push(tempItem);
         });
         const updateData = {
-            _id: props.entry._id,
+            _id: entry._id,
             project: {
                 projectId: selectedProject.projectId,
                 description: selectedProject.description,
@@ -141,22 +85,57 @@ export default function ApprovalsEditView(props) {
             end: selectedEndDate,
             note: selectedNote,
             items: actualItems,
-            duration: selectedDuration
+            duration: selectedDuration,
+            rejected: { status: false }
         };
-        const data = await updateAssetEntry(
-            props.userId,
-            props.referenceId,
-            props.entry._id,
-            { ...props.entry, ...updateData }
-        );
+
+        const res = await updateAssetEntry(userId, referenceId, entry._id, {
+            ...entry,
+            ...updateData
+        });
+
+        const newEntries = [{ ...res.data }];
+        await props.assetTimeEntries.map(value => {
+            return value._id !== entry._id && newEntries.push(value);
+        });
+
+        await props.handleNewEntry({ ...entry, ...res.data });
+        await props.handleNewAssetEntries(newEntries);
     };
 
     const handleApprove = async () => {
-        const data = await preApproveAssetEntries(
-            props.userId,
-            props.referenceId,
-            [props.entry._id]
-        );
+        const req = {
+            userId,
+            referenceId,
+            data: [entry._id]
+        };
+        let res = false;
+        if (level === PREAPPROVALS_LEVEL)
+            res = await preApproveAssetEntries(
+                req.userId,
+                req.referenceId,
+                req.data
+            );
+        if (level === APPROVALS_LEVEL)
+            res = await approveAssetEntries(
+                req.userId,
+                req.referenceId,
+                req.data
+            );
+        if (level === AUTHORIZATIONS_LEVEL)
+            res = await authorizeAssetEntries(
+                req.userId,
+                req.referenceId,
+                req.data
+            );
+
+        if (!res) return;
+        const newEntries = [{ ...res.data[0] }];
+        await props.assetTimeEntries.map(value => {
+            return value._id !== entry._id && newEntries.push(value);
+        });
+        await props.handleNewAssetEntries(newEntries);
+        await props.handleEditViewEntry(null);
     };
 
     const EditViewBody = () => {
@@ -210,9 +189,12 @@ export default function ApprovalsEditView(props) {
 
         return (
             <ApprovalsEditViewForm
-                {...props}
+                entry={entry}
+                options={options}
                 handleBackButton={handleListBackButton}
-                handleShowEditViewInputOptions={handleShowEditViewInputOptions}
+                handleShowEditViewInputOptions={show =>
+                    setShowEditViewItemsOptions(show)
+                }
                 handleShowEditViewProjectOptions={show =>
                     setShowEditViewProjectOptions(show)
                 }
@@ -233,7 +215,6 @@ export default function ApprovalsEditView(props) {
                 handleShowEditViewNoteModal={show =>
                     setShowEditViewNoteModal(show)
                 }
-                handleSelectedNote={note => setSelectedNote(note)}
                 selectedDuration={selectedDuration}
                 handleSelectedDuration={duration =>
                     setSelectedDuration(duration)
@@ -241,13 +222,26 @@ export default function ApprovalsEditView(props) {
                 selectedNote={selectedNote}
                 handleUpdate={handleUpdate}
                 handleApprove={handleApprove}
+                level={level}
             />
         );
     };
 
     return (
-        <React.Fragment>
+        <>
             <EditViewBody />
-        </React.Fragment>
+        </>
     );
 }
+
+ApprovalsEditView.propTypes = {
+    userId: PropTypes.string.isRequired,
+    referenceId: PropTypes.string.isRequired,
+    level: PropTypes.string.isRequired,
+    entry: PropTypes.object.isRequired,
+    assetTimeEntries: PropTypes.array.isRequired,
+    options: PropTypes.object.isRequired,
+    handleEditViewEntry: PropTypes.func.isRequired,
+    handleNewEntry: PropTypes.func.isRequired,
+    handleNewAssetEntries: PropTypes.func.isRequired
+};
