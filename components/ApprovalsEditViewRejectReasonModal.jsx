@@ -6,18 +6,18 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import { REJECTIONS_LEVEL } from '../app/constants';
 
 export default function ApprovalsEditViewRejectReasonModal(props) {
     const { reason, showEditViewRejectReasonModal } = props;
-    const [value, setValue] = React.useState(reason);
-    const [open] = React.useState(showEditViewRejectReasonModal);
+    const [value, setValue] = React.useState(props.reason);
 
     const handleCancel = () => {
         props.handleBackButton(false);
     };
 
     const handleOk = () => {
-        props.handleRejectReason(value);
+        if (props.handleRejectReason) props.handleRejectReason(value);
         props.handleBackButton(false);
     };
 
@@ -30,7 +30,7 @@ export default function ApprovalsEditViewRejectReasonModal(props) {
             disableBackdropClick
             disableEscapeKeyDown
             aria-labelledby="confirmation-dialog-title"
-            open={open}
+            open={showEditViewRejectReasonModal}
         >
             <DialogTitle id="confirmation-dialog-title">Reason</DialogTitle>
             <DialogContent dividers>
@@ -40,16 +40,17 @@ export default function ApprovalsEditViewRejectReasonModal(props) {
                     placeholder="write a reason please..."
                     defaultValue={reason}
                     onChange={handleChange}
+                    disabled={!props.handleRejectReason}
                 />
             </DialogContent>
             <DialogActions>
                 <Button autoFocus onClick={handleCancel} color="primary">
-                    Cancel
+                    {`${!props.handleRejectReason ? 'Back' : 'Cancel'}`}
                 </Button>
                 <Button
                     onClick={handleOk}
                     color="primary"
-                    disabled={value.length === 0}
+                    disabled={value.length === 0 || !props.handleRejectReason}
                 >
                     Ok
                 </Button>
@@ -62,5 +63,6 @@ ApprovalsEditViewRejectReasonModal.propTypes = {
     reason: PropTypes.string.isRequired,
     handleBackButton: PropTypes.func.isRequired,
     showEditViewRejectReasonModal: PropTypes.bool.isRequired,
-    handleRejectReason: PropTypes.func.isRequired
+    // eslint-disable-next-line react/forbid-prop-types
+    handleRejectReason: PropTypes.any.isRequired
 };

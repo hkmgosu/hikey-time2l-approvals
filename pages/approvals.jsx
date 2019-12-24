@@ -4,11 +4,7 @@ import ApprovalsList from '../components/ApprovalsList';
 import ApprovalsEditView from '../components/ApprovalsEditView';
 import { listEntriesForApproval } from '../app/apiCalls/approvals';
 import ApprovalsListByFilter from '../components/ApprovalsListByFilter';
-import {
-    PREAPPROVALS_LEVEL,
-    APPROVALS_LEVEL,
-    AUTHORIZATIONS_LEVEL
-} from '../app/constants';
+import { APPROVALS_LEVEL } from '../app/constants';
 
 class Approvals extends React.Component {
     static async getInitialProps({ query }) {
@@ -39,17 +35,9 @@ class Approvals extends React.Component {
 
     async componentDidMount() {
         const filterApprovedByList = [];
-        // eslint-disable-next-line array-callback-return
-        this.props.assetTimeEntries.map(value => {
+        this.props.assetTimeEntries.forEach(value => {
             if (
-                this.props.level === PREAPPROVALS_LEVEL &&
-                !value.preApproved.status
-            )
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (this.props.level === APPROVALS_LEVEL && !value.approved.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (
-                this.props.level === AUTHORIZATIONS_LEVEL &&
+                this.props.level === APPROVALS_LEVEL &&
                 !value.authorised.status
             )
                 if (!value.rejected.status) filterApprovedByList.push(value);

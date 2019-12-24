@@ -15,7 +15,8 @@ import {
 import {
     PREAPPROVALS_LEVEL,
     APPROVALS_LEVEL,
-    AUTHORIZATIONS_LEVEL
+    AUTHORIZATIONS_LEVEL,
+    REJECTIONS_LEVEL
 } from '../app/constants';
 
 export default function ApprovalsEditView(props) {
@@ -55,6 +56,10 @@ export default function ApprovalsEditView(props) {
     const [selectedNote, setSelectedNote] = React.useState(props.entry.note);
     const [selectedDuration, setSelectedDuration] = React.useState(
         props.entry.duration
+    );
+
+    const [selectedRejectReason] = React.useState(
+        props.entry.rejected.status && props.entry.rejected.reason
     );
 
     React.useEffect(() => {
@@ -110,7 +115,7 @@ export default function ApprovalsEditView(props) {
             data: [entry._id]
         };
         let res = false;
-        if (level === PREAPPROVALS_LEVEL)
+        if (level === PREAPPROVALS_LEVEL || level === REJECTIONS_LEVEL)
             res = await preApproveAssetEntries(
                 req.userId,
                 req.referenceId,
@@ -220,6 +225,7 @@ export default function ApprovalsEditView(props) {
                     setSelectedDuration(duration)
                 }
                 selectedNote={selectedNote}
+                selectedRejectReason={selectedRejectReason}
                 handleUpdate={handleUpdate}
                 handleApprove={handleApprove}
                 level={level}

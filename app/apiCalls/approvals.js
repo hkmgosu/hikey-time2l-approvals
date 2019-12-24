@@ -38,6 +38,18 @@ export const listEntriesForApproval = async (userId, referenceId) => {
         .finally(() => {});
 };
 
+export const listEntriesForReSubmit = async userId => {
+    const url = `${baseApiPathV1()}rejections/${userId}}`;
+
+    return axios
+        .get(url)
+        .then(response => response.data)
+        .catch(error => {
+            throw error;
+        })
+        .finally(() => {});
+};
+
 export const updateAssetEntry = async (
     userId,
     referenceId,

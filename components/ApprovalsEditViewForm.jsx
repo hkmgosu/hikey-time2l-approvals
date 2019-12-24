@@ -19,10 +19,11 @@ import {
 import MomentUtils from '@date-io/moment';
 import moment from 'moment';
 import TopAppBar from './TopAppBar';
+import ApprovalsEditViewRejectReasonModal from './ApprovalsEditViewRejectReasonModal';
 import {
-    PREAPPROVALS_LEVEL,
     APPROVALS_LEVEL,
-    AUTHORIZATIONS_LEVEL
+    AUTHORIZATIONS_LEVEL,
+    REJECTIONS_LEVEL
 } from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -96,6 +97,11 @@ export default function ApprovalsEditViewForm(props) {
     const [items] = React.useState(props.selectedItems);
     const [note] = React.useState(props.selectedNote);
     const [duration] = React.useState(props.selectedDuration);
+    const [
+        showEditViewRejectReasonModal,
+        setShowEditViewRejectReasonModal
+    ] = React.useState(false);
+    const [rejectReason] = React.useState(props.selectedRejectReason);
     const { level, options } = props;
 
     const handleBackButton = () => {
@@ -179,6 +185,16 @@ export default function ApprovalsEditViewForm(props) {
                 : 'inherit'
     };
 
+    const handleApproveButtonText = () => {
+        if (level === AUTHORIZATIONS_LEVEL) {
+            return 'Authorize';
+        }
+        if (level !== REJECTIONS_LEVEL) {
+            return 'Approve';
+        }
+        return 'Re-Submit';
+    };
+
     return (
         <>
             <TopAppBar
@@ -209,6 +225,69 @@ export default function ApprovalsEditViewForm(props) {
                             {`Total: ${duration}`}
                         </Typography>
                     </ListItem>
+
+                    {level === REJECTIONS_LEVEL && (
+                        <ListItem divider>
+                            <ListItemAvatar className={classes.ListItemAvatar}>
+                                <Avatar
+                                    alt="Project"
+                                    src="/static/icons/Icons_AppInterface-8.svg"
+                                    className={classes.avatar}
+                                />
+                            </ListItemAvatar>
+                            <Grid
+                                container
+                                direction="column"
+                                justify="space-around"
+                                alignItems="flex-start"
+                                spacing={0}
+                            >
+                                <Typography
+                                    component="span"
+                                    variant="overline"
+                                    className={classes.inline}
+                                    color="error"
+                                >
+                                    REJECTED
+                                </Typography>
+                                <Typography
+                                    component="span"
+                                    variant="body2"
+                                    className={classes.inline}
+                                    color="textPrimary"
+                                >
+                                    Click here to see details
+                                </Typography>
+                            </Grid>
+                            <Grid
+                                container
+                                direction="row"
+                                justify="flex-end"
+                                alignItems="center"
+                                style={{ width: 48, ...enableEditButtonStyle }}
+                            >
+                                <IconButton
+                                    className={classes.detailButton}
+                                    aria-label="select a project"
+                                    onClick={() =>
+                                        setShowEditViewRejectReasonModal(true)
+                                    }
+                                >
+                                    <KeyboardArrowRight />
+                                </IconButton>
+                            </Grid>
+                            <ApprovalsEditViewRejectReasonModal
+                                handleBackButton={show =>
+                                    setShowEditViewRejectReasonModal(show)
+                                }
+                                reason={rejectReason}
+                                showEditViewRejectReasonModal={
+                                    showEditViewRejectReasonModal
+                                }
+                                handleRejectReason={false}
+                            />
+                        </ListItem>
+                    )}
                     <ListItem divider>
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
@@ -238,7 +317,11 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                {`${project.projectId} (${project.description})`}
+                                {`${project.projectId} ${
+                                    project.description
+                                        ? `(${project.description})`
+                                        : ''
+                                }`}
                             </Typography>
                         </Grid>
                         <Grid
@@ -450,7 +533,7 @@ export default function ApprovalsEditViewForm(props) {
                             </Typography>
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
-                                    id="date-picker-start"
+                                    id="time-picker-start"
                                     emptyLabel=""
                                     value={startDate}
                                     onChange={async value => {
@@ -666,18 +749,12 @@ export default function ApprovalsEditViewForm(props) {
                         onClick={props.handleApprove}
                         style={{
                             backgroundColor:
-                                level === PREAPPROVALS_LEVEL ||
-                                level === APPROVALS_LEVEL
+                                level !== AUTHORIZATIONS_LEVEL
                                     ? classes.approveButton.backgroundColor
                                     : '#A3CF00'
                         }}
                     >
-                        {`${
-                            level === PREAPPROVALS_LEVEL ||
-                            level === APPROVALS_LEVEL
-                                ? 'Approve'
-                                : 'Authorize'
-                        }`}
+                        {handleApproveButtonText()}
                     </Button>
                 </Grid>
             </>
@@ -702,6 +779,7 @@ ApprovalsEditViewForm.propTypes = {
     handleStartDate: PropTypes.func.isRequired,
     selectedTask: PropTypes.string.isRequired,
     selectedNote: PropTypes.string.isRequired,
+    selectedRejectReason: PropTypes.string.isRequired,
     handleShowEditViewItemsOptions: PropTypes.func.isRequired,
     handleShowEditViewNoteModal: PropTypes.func.isRequired,
     handleShowEditViewProjectOptions: PropTypes.func.isRequired,

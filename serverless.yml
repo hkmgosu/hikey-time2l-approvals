@@ -83,7 +83,14 @@ custom:
                       paths:
                           userId: true
                           referenceId: true
-
+            - src: rejections
+              path: rejections/{userId}/{referenceId}
+              request:
+                  parameters:
+                      paths:
+                          userId: true
+                          referenceId: true
+                          
     corsheaders:
         origin: '*' # <-- Specify allowed origin
         headers: # <-- Specify allowed headers

@@ -10,7 +10,8 @@ import TopAppBar from './TopAppBar';
 import {
     PREAPPROVALS_LEVEL,
     APPROVALS_LEVEL,
-    AUTHORIZATIONS_LEVEL
+    AUTHORIZATIONS_LEVEL,
+    REJECTIONS_LEVEL
 } from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -56,6 +57,8 @@ export default function ApprovalsListByFilter(props) {
                 if (!value.rejected.status) filterApprovedByList.push(value);
             if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status)
                 if (!value.rejected.status) filterApprovedByList.push(value);
+            if (level === REJECTIONS_LEVEL && value.rejected.status)
+                filterApprovedByList.push(value);
         });
 
         if (filterApprovedByList.length === 0)

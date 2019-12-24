@@ -23,7 +23,8 @@ import {
 import {
     PREAPPROVALS_LEVEL,
     APPROVALS_LEVEL,
-    AUTHORIZATIONS_LEVEL
+    AUTHORIZATIONS_LEVEL,
+    REJECTIONS_LEVEL
 } from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -98,14 +99,15 @@ export default function ApprovalsList(props) {
         /* global window */
         window.scrollTo(0, 0);
         const filterApprovedByList = [];
-        // eslint-disable-next-line array-callback-return
-        approvalList.map(value => {
+        approvalList.forEach(value => {
             if (level === PREAPPROVALS_LEVEL && !value.preApproved.status)
                 if (!value.rejected.status) filterApprovedByList.push(value);
             if (level === APPROVALS_LEVEL && !value.approved.status)
                 if (!value.rejected.status) filterApprovedByList.push(value);
             if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status)
                 if (!value.rejected.status) filterApprovedByList.push(value);
+            if (level === REJECTIONS_LEVEL && value.rejected.status)
+                filterApprovedByList.push(value);
         });
         setNewEntriesList(approvalList);
         setApprovalList(filterApprovedByList);
@@ -131,28 +133,30 @@ export default function ApprovalsList(props) {
             checked
         };
         let res = false;
-        if (level === PREAPPROVALS_LEVEL)
+        if (level === PREAPPROVALS_LEVEL || level === REJECTIONS_LEVEL) {
             res = await preApproveAssetEntries(
                 req.userId,
                 req.referenceId,
                 checked
             );
-        if (level === APPROVALS_LEVEL)
+        }
+        if (level === APPROVALS_LEVEL) {
             res = await approveAssetEntries(
                 req.userId,
                 req.referenceId,
                 checked
             );
-        if (level === AUTHORIZATIONS_LEVEL)
+        }
+        if (level === AUTHORIZATIONS_LEVEL) {
             res = await authorizeAssetEntries(
                 req.userId,
                 req.referenceId,
                 checked
             );
+        }
 
         if (!res) return;
-        // eslint-disable-next-line array-callback-return
-        checked.map(entryId => {
+        checked.forEach(entryId => {
             let entry = approvalList.find(value => entryId === value._id);
             if (entry) {
                 _.remove(approvalList, appItem => appItem._id === entry._id);
@@ -182,8 +186,7 @@ export default function ApprovalsList(props) {
 
         if (!res) return;
 
-        // eslint-disable-next-line array-callback-return
-        checked.map(entryId => {
+        checked.forEach(entryId => {
             let entry = approvalList.find(value => entryId === value._id);
             if (entry) {
                 _.remove(approvalList, appItem => appItem._id === entry._id);
@@ -214,6 +217,20 @@ export default function ApprovalsList(props) {
                 </div>
             );
         }
+
+        const enableRejectButtonStyle = {
+            display: level === REJECTIONS_LEVEL ? 'none' : 'inherit'
+        };
+
+        const handleApproveButtonText = () => {
+            if (level === AUTHORIZATIONS_LEVEL) {
+                return 'Authorize';
+            }
+            if (level !== REJECTIONS_LEVEL) {
+                return 'Approve';
+            }
+            return 'Re-Submit';
+        };
 
         return (
             <>
@@ -277,6 +294,16 @@ export default function ApprovalsList(props) {
                                                     : moment(value.end).minute()
                                             }`}
                                         </Typography>
+                                        {level === REJECTIONS_LEVEL && (
+                                            <Typography
+                                                className={classes.title}
+                                                variant="subtitle2"
+                                                color="error"
+                                                noWrap
+                                            >
+                                                rejected
+                                            </Typography>
+                                        )}
                                         <Typography
                                             component="span"
                                             variant="body2"
@@ -308,6 +335,7 @@ export default function ApprovalsList(props) {
                                         justify="flex-end"
                                         alignItems="center"
                                         spacing={3}
+                                        style={{ width: '50%' }}
                                     >
                                         <Checkbox
                                             edge="end"
@@ -342,15 +370,20 @@ export default function ApprovalsList(props) {
                     alignItems="center"
                     className={classes.bottomGrid}
                 >
-                    <Button
-                        variant="contained"
-                        className={classes.rejectButton}
-                        size="large"
-                        onClick={() => setShowEditViewRejectReasonModal(true)}
-                        disabled={loading || checked.length === 0}
-                    >
-                        Reject
-                    </Button>
+                    {level !== REJECTIONS_LEVEL && (
+                        <Button
+                            variant="contained"
+                            className={classes.rejectButton}
+                            size="large"
+                            onClick={() =>
+                                setShowEditViewRejectReasonModal(true)
+                            }
+                            disabled={loading || checked.length === 0}
+                            style={enableRejectButtonStyle}
+                        >
+                            Reject
+                        </Button>
+                    )}
                     <Button
                         variant="contained"
                         className={classes.approveButton}
@@ -359,18 +392,12 @@ export default function ApprovalsList(props) {
                         disabled={loading || checked.length === 0}
                         style={{
                             backgroundColor:
-                                level === PREAPPROVALS_LEVEL ||
-                                level === APPROVALS_LEVEL
+                                level !== AUTHORIZATIONS_LEVEL
                                     ? classes.approveButton.backgroundColor
                                     : '#A3CF00'
                         }}
                     >
-                        {`${
-                            level === PREAPPROVALS_LEVEL ||
-                            level === APPROVALS_LEVEL
-                                ? 'Approve'
-                                : 'Authorize'
-                        }`}
+                        {handleApproveButtonText()}
                     </Button>
                 </Grid>
                 <ApprovalsEditViewRejectReasonModal

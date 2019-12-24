@@ -2,22 +2,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ApprovalsList from '../components/ApprovalsList';
 import ApprovalsEditView from '../components/ApprovalsEditView';
-import { listEntriesForPreApproval } from '../app/apiCalls/approvals';
+import { listEntriesForReSubmit } from '../app/apiCalls/approvals';
 import ApprovalsListByFilter from '../components/ApprovalsListByFilter';
-import { PREAPPROVALS_LEVEL } from '../app/constants';
+import { REJECTIONS_LEVEL } from '../app/constants';
 
-class PreApprovals extends React.Component {
+class Rejections extends React.Component {
     static async getInitialProps({ query }) {
-        const { userId, referenceId } = query;
+        const { userId } = query,
+            referenceId = '';
 
-        const res = await listEntriesForPreApproval(userId, referenceId);
+        const res = await listEntriesForReSubmit(userId);
 
         return {
             userId,
             referenceId,
             assetTimeEntries: res.assetTimeEntries,
             options: { projects: res && res.projects },
-            level: PREAPPROVALS_LEVEL
+            level: REJECTIONS_LEVEL
         };
     }
 
@@ -35,12 +36,8 @@ class PreApprovals extends React.Component {
 
     async componentDidMount() {
         const filterApprovedByList = [];
-        this.props.assetTimeEntries.forEach(value => {
-            if (
-                this.props.level === PREAPPROVALS_LEVEL &&
-                !value.preApproved.status
-            )
-                if (!value.rejected.status) filterApprovedByList.push(value);
+        await this.props.assetTimeEntries.forEach(value => {
+            if (value.rejected.status) filterApprovedByList.push(value);
         });
         await this.setState({
             assetTimeEntries: filterApprovedByList
@@ -67,7 +64,7 @@ class PreApprovals extends React.Component {
     }
 
     render() {
-        const PreApprovalsBody = () => {
+        const RejectionsBody = () => {
             if (this.state.isFilterList) {
                 return (
                     <ApprovalsListByFilter
@@ -138,13 +135,13 @@ class PreApprovals extends React.Component {
 
         return (
             <>
-                <PreApprovalsBody />
+                <RejectionsBody />
             </>
         );
     }
 }
 
-PreApprovals.propTypes = {
+Rejections.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
@@ -154,4 +151,4 @@ PreApprovals.propTypes = {
     referenceId: PropTypes.string.isRequired
 };
 
-export default PreApprovals;
+export default Rejections;

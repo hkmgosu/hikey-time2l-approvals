@@ -113,7 +113,11 @@ export default function ApprovalsEditViewProjectOptions(props) {
                                             className={classes.inline}
                                             color="textPrimary"
                                         >
-                                            {`${option.projectId} (${option.description})`}
+                                            {`${option.projectId} ${
+                                                option.description
+                                                    ? `(${option.description})`
+                                                    : ''
+                                            }`}
                                         </Typography>
                                         <Typography
                                             component="span"
