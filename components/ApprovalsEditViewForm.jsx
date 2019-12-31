@@ -23,7 +23,8 @@ import ApprovalsEditViewRejectReasonModal from './ApprovalsEditViewRejectReasonM
 import {
     APPROVALS_LEVEL,
     AUTHORIZATIONS_LEVEL,
-    REJECTIONS_LEVEL
+    REJECTIONS_LEVEL,
+    PREAPPROVALS_LEVEL
 } from '../app/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -85,6 +86,9 @@ const useStyles = makeStyles(theme => ({
         paddingRight: 0,
         paddingTop: 0,
         marginBottom: 9
+    },
+    disableTextColor: {
+        color: 'gray'
     }
 }));
 
@@ -97,12 +101,17 @@ export default function ApprovalsEditViewForm(props) {
     const [items] = React.useState(props.selectedItems);
     const [note] = React.useState(props.selectedNote);
     const [duration] = React.useState(props.selectedDuration);
+    const [showStartDate, setShowStartDate] = React.useState(false);
+    const [showEndDate, setShowEndDate] = React.useState(false);
+    const [showStartTime, setShowStartTime] = React.useState(false);
+    const [showEndTime, setShowEndTime] = React.useState(false);
+    const [formError, setFormError] = React.useState(false);
     const [
         showEditViewRejectReasonModal,
         setShowEditViewRejectReasonModal
     ] = React.useState(false);
     const [rejectReason] = React.useState(props.selectedRejectReason);
-    const { level, options } = props;
+    const { level, options, loading } = props;
 
     const handleBackButton = () => {
         props.handleBackButton();
@@ -132,8 +141,7 @@ export default function ApprovalsEditViewForm(props) {
 
     const actualItems = [];
     if (items && items.length > 0) {
-        // eslint-disable-next-line array-callback-return
-        items.map(value => {
+        items.forEach(value => {
             if (!value.actual) return;
             actualItems.push(
                 <Typography
@@ -142,6 +150,11 @@ export default function ApprovalsEditViewForm(props) {
                     variant="body2"
                     className={classes.inline}
                     color="textPrimary"
+                    style={
+                        [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
+                            ? {}
+                            : { color: 'gray' }
+                    }
                 >
                     {`${
                         value.name && value.name.length > 18
@@ -159,7 +172,9 @@ export default function ApprovalsEditViewForm(props) {
                 variant="body2"
                 style={{ color: 'grey ' }}
             >
-                Optional: Please select a project with items
+                {[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
+                    ? `Optional: Please select a project with items`
+                    : 'No items assigned'}
             </Typography>
         );
 
@@ -173,16 +188,17 @@ export default function ApprovalsEditViewForm(props) {
                 variant="body2"
                 style={{ color: 'grey ' }}
             >
-                Optional: Please select items
+                {[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
+                    ? `Optional: Please select a items`
+                    : 'No items assigned'}
             </Typography>
         );
     };
 
     const enableEditButtonStyle = {
-        display:
-            level === APPROVALS_LEVEL || level === AUTHORIZATIONS_LEVEL
-                ? 'none'
-                : 'inherit'
+        display: [APPROVALS_LEVEL, AUTHORIZATIONS_LEVEL].includes(level)
+            ? 'none'
+            : 'inherit'
     };
 
     const handleApproveButtonText = () => {
@@ -227,7 +243,13 @@ export default function ApprovalsEditViewForm(props) {
                     </ListItem>
 
                     {level === REJECTIONS_LEVEL && (
-                        <ListItem divider>
+                        <ListItem
+                            divider
+                            button
+                            onClick={() =>
+                                setShowEditViewRejectReasonModal(true)
+                            }
+                        >
                             <ListItemAvatar className={classes.ListItemAvatar}>
                                 <Avatar
                                     alt="Project"
@@ -269,9 +291,6 @@ export default function ApprovalsEditViewForm(props) {
                                 <IconButton
                                     className={classes.detailButton}
                                     aria-label="select a project"
-                                    onClick={() =>
-                                        setShowEditViewRejectReasonModal(true)
-                                    }
                                 >
                                     <KeyboardArrowRight />
                                 </IconButton>
@@ -288,7 +307,20 @@ export default function ApprovalsEditViewForm(props) {
                             />
                         </ListItem>
                     )}
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() =>
+                            [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                level
+                            ) &&
+                            props.handleShowEditViewProjectOptions(
+                                options.projects
+                            )
+                        }
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Project"
@@ -316,6 +348,14 @@ export default function ApprovalsEditViewForm(props) {
                                 variant="body2"
                                 className={classes.inline}
                                 color="textPrimary"
+                                style={
+                                    [
+                                        PREAPPROVALS_LEVEL,
+                                        REJECTIONS_LEVEL
+                                    ].includes(level)
+                                        ? {}
+                                        : { color: 'gray' }
+                                }
                             >
                                 {`${project.projectId} ${
                                     project.description
@@ -334,17 +374,25 @@ export default function ApprovalsEditViewForm(props) {
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="select a project"
-                                onClick={() =>
-                                    props.handleShowEditViewProjectOptions(
-                                        options.projects
-                                    )
-                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() =>
+                            [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                level
+                            ) &&
+                            props.handleShowEditViewTaskOptions(
+                                project.tasks || []
+                            )
+                        }
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Task"
@@ -373,6 +421,11 @@ export default function ApprovalsEditViewForm(props) {
                                     variant="body2"
                                     className={classes.inline}
                                     color="textPrimary"
+                                    style={
+                                        level !== PREAPPROVALS_LEVEL
+                                            ? { color: 'gray' }
+                                            : {}
+                                    }
                                 >
                                     {task}
                                 </Typography>
@@ -382,7 +435,9 @@ export default function ApprovalsEditViewForm(props) {
                                     variant="body2"
                                     style={{ color: 'grey ' }}
                                 >
-                                    Optional: Please select a task
+                                    {level === PREAPPROVALS_LEVEL
+                                        ? `Optional: Please select a task`
+                                        : 'No task assigned'}
                                 </Typography>
                             )}
                         </Grid>
@@ -396,21 +451,22 @@ export default function ApprovalsEditViewForm(props) {
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="select a task"
-                                disabled={
-                                    level === APPROVALS_LEVEL &&
-                                    level === AUTHORIZATIONS_LEVEL
-                                }
-                                onClick={() =>
-                                    props.handleShowEditViewTaskOptions(
-                                        project.tasks ? project.tasks : []
-                                    )
-                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() =>
+                            [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                level
+                            ) && props.handleShowEditViewItemsOptions(items)
+                        }
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Items"
@@ -445,19 +501,25 @@ export default function ApprovalsEditViewForm(props) {
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="detail"
-                                onClick={() =>
-                                    props.handleShowEditViewItemsOptions(items)
-                                }
-                                disabled={
-                                    level === APPROVALS_LEVEL &&
-                                    level === AUTHORIZATIONS_LEVEL
-                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() => {
+                            if (
+                                [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                    level
+                                )
+                            )
+                                if (!showStartDate) setShowStartDate(true);
+                        }}
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Start Time"
@@ -478,13 +540,19 @@ export default function ApprovalsEditViewForm(props) {
                                 <KeyboardDatePicker
                                     id="date-picker-start"
                                     format="DD/MM/YYYY"
+                                    strictCompareDates
                                     emptyLabel=""
                                     value={startDate}
+                                    onClose={() => setShowStartDate(false)}
                                     onChange={value => {
                                         props.handleStartDate(new Date(value));
                                     }}
+                                    onError={error => {
+                                        if (error) setFormError(error);
+                                    }}
                                     InputProps={{
-                                        disableUnderline: true
+                                        disableUnderline: true,
+                                        readOnly: true
                                     }}
                                     InputAdornmentProps={{
                                         'aria-label': 'change start date',
@@ -492,24 +560,39 @@ export default function ApprovalsEditViewForm(props) {
                                     }}
                                     KeyboardButtonProps={{
                                         'aria-label': 'change start date',
-                                        disabled:
-                                            level === 'approvals' &&
-                                            level === 'authorizations'
+                                        disabled: [
+                                            APPROVALS_LEVEL,
+                                            AUTHORIZATIONS_LEVEL
+                                        ].includes(level)
                                     }}
                                     keyboardIcon={(
                                         <KeyboardArrowRight
                                             style={enableEditButtonStyle}
                                         />
                                       )}
-                                    disabled={
-                                        level === APPROVALS_LEVEL ||
-                                        level === AUTHORIZATIONS_LEVEL
-                                    }
+                                    disabled={[
+                                        APPROVALS_LEVEL,
+                                        AUTHORIZATIONS_LEVEL
+                                    ].includes(level)}
+                                    open={showStartDate}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() => {
+                            if (
+                                [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                    level
+                                )
+                            )
+                                if (!showStartTime) setShowStartTime(true);
+                        }}
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Start Date"
@@ -538,31 +621,55 @@ export default function ApprovalsEditViewForm(props) {
                                     value={startDate}
                                     onChange={async value => {
                                         props.handleStartDate(new Date(value));
+                                        setShowStartDate(false);
+                                    }}
+                                    strictCompareDates
+                                    onError={error => {
+                                        if (error) setFormError(error);
                                     }}
                                     InputProps={{
-                                        disableUnderline: true
+                                        disableUnderline: true,
+                                        readOnly: true
                                     }}
                                     InputAdornmentProps={{
                                         'aria-label': 'change start date',
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date'
+                                        'aria-label': 'change start date',
+                                        disabled: [
+                                            APPROVALS_LEVEL,
+                                            AUTHORIZATIONS_LEVEL
+                                        ].includes(level)
                                     }}
                                     keyboardIcon={(
                                         <KeyboardArrowRight
                                             style={enableEditButtonStyle}
                                         />
                                       )}
-                                    disabled={
-                                        level === APPROVALS_LEVEL ||
-                                        level === AUTHORIZATIONS_LEVEL
-                                    }
+                                    disabled={[
+                                        APPROVALS_LEVEL,
+                                        AUTHORIZATIONS_LEVEL
+                                    ].includes(level)}
+                                    open={showStartTime}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() => {
+                            if (
+                                [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                    level
+                                )
+                            )
+                                if (!showEndDate) setShowEndDate(true);
+                        }}
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="End Date"
@@ -595,30 +702,53 @@ export default function ApprovalsEditViewForm(props) {
                                     onChange={value => {
                                         props.handleEndDate(new Date(value));
                                     }}
+                                    strictCompareDates
+                                    onError={error => {
+                                        if (error) setFormError(error);
+                                    }}
                                     InputProps={{
-                                        disableUnderline: true
+                                        disableUnderline: true,
+                                        readOnly: true
                                     }}
                                     InputAdornmentProps={{
                                         'aria-label': 'change start date',
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date'
+                                        'aria-label': 'change start date',
+                                        disabled: [
+                                            APPROVALS_LEVEL,
+                                            AUTHORIZATIONS_LEVEL
+                                        ].includes(level)
                                     }}
                                     keyboardIcon={(
                                         <KeyboardArrowRight
                                             style={enableEditButtonStyle}
                                         />
                                       )}
-                                    disabled={
-                                        level === APPROVALS_LEVEL ||
-                                        level === AUTHORIZATIONS_LEVEL
-                                    }
+                                    disabled={[
+                                        APPROVALS_LEVEL,
+                                        AUTHORIZATIONS_LEVEL
+                                    ].includes(level)}
+                                    open={showEndDate}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() => {
+                            if (
+                                [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                    level
+                                )
+                            )
+                                if (!showEndTime) setShowEndTime(true);
+                        }}
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="End Time"
@@ -650,30 +780,50 @@ export default function ApprovalsEditViewForm(props) {
                                     onChange={value => {
                                         props.handleEndDate(new Date(value));
                                     }}
+                                    strictCompareDates
+                                    onError={error => {
+                                        if (error) setFormError(error);
+                                    }}
                                     InputProps={{
-                                        disableUnderline: true
+                                        disableUnderline: true,
+                                        readOnly: true
                                     }}
                                     InputAdornmentProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label': 'change end time',
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date'
+                                        'aria-label': 'change end time',
+                                        disabled: [
+                                            APPROVALS_LEVEL,
+                                            AUTHORIZATIONS_LEVEL
+                                        ].includes(level)
                                     }}
                                     keyboardIcon={(
                                         <KeyboardArrowRight
                                             style={enableEditButtonStyle}
                                         />
                                       )}
-                                    disabled={
-                                        level === APPROVALS_LEVEL ||
-                                        level === AUTHORIZATIONS_LEVEL
-                                    }
+                                    disabled={[
+                                        APPROVALS_LEVEL,
+                                        AUTHORIZATIONS_LEVEL
+                                    ].includes(level)}
+                                    open={showEndTime}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
                     </ListItem>
-                    <ListItem divider>
+                    <ListItem
+                        divider
+                        button={[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                            level
+                        )}
+                        onClick={() =>
+                            [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
+                                level
+                            ) && props.handleShowEditViewNoteModal(true)
+                        }
+                    >
                         <ListItemAvatar className={classes.ListItemAvatar}>
                             <Avatar
                                 alt="Note"
@@ -699,11 +849,16 @@ export default function ApprovalsEditViewForm(props) {
                             <Typography
                                 component="span"
                                 variant="body2"
-                                style={{ color: 'grey ' }}
+                                style={
+                                    [
+                                        PREAPPROVALS_LEVEL,
+                                        REJECTIONS_LEVEL
+                                    ].includes(level)
+                                        ? {}
+                                        : { color: 'gray' }
+                                }
                             >
-                                {!note
-                                    ? `Optional: Please enter a note`
-                                    : `change the note of this timesheet`}
+                                {note || `Optional: Please enter a note`}
                             </Typography>
                         </Grid>
                         <Grid
@@ -716,9 +871,6 @@ export default function ApprovalsEditViewForm(props) {
                             <IconButton
                                 className={classes.detailButton}
                                 aria-label="detail"
-                                onClick={() =>
-                                    props.handleShowEditViewNoteModal(true)
-                                }
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
@@ -739,8 +891,9 @@ export default function ApprovalsEditViewForm(props) {
                         size="large"
                         onClick={props.handleUpdate}
                         style={enableEditButtonStyle}
+                        disabled={loading || formError.length > 0}
                     >
-                        Update
+                        {loading ? 'Loading...' : 'Update'}
                     </Button>
                     <Button
                         variant="contained"
@@ -753,8 +906,9 @@ export default function ApprovalsEditViewForm(props) {
                                     ? classes.approveButton.backgroundColor
                                     : '#A3CF00'
                         }}
+                        disabled={loading || formError.length > 0}
                     >
-                        {handleApproveButtonText()}
+                        {loading ? 'Loading...' : handleApproveButtonText()}
                     </Button>
                 </Grid>
             </>
@@ -783,5 +937,6 @@ ApprovalsEditViewForm.propTypes = {
     handleShowEditViewItemsOptions: PropTypes.func.isRequired,
     handleShowEditViewNoteModal: PropTypes.func.isRequired,
     handleShowEditViewProjectOptions: PropTypes.func.isRequired,
-    handleShowEditViewTaskOptions: PropTypes.func.isRequired
+    handleShowEditViewTaskOptions: PropTypes.func.isRequired,
+    loading: PropTypes.bool.isRequired
 };

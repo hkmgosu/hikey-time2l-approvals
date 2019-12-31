@@ -133,7 +133,7 @@ export default function ApprovalsList(props) {
             checked
         };
         let res = false;
-        if (level === PREAPPROVALS_LEVEL || level === REJECTIONS_LEVEL) {
+        if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)) {
             res = await preApproveAssetEntries(
                 req.userId,
                 req.referenceId,
@@ -219,7 +219,7 @@ export default function ApprovalsList(props) {
         }
 
         const enableRejectButtonStyle = {
-            display: level === REJECTIONS_LEVEL ? 'none' : 'inherit'
+            display: level === PREAPPROVALS_LEVEL ? 'none' : 'inherit'
         };
 
         const handleApproveButtonText = () => {
@@ -239,7 +239,7 @@ export default function ApprovalsList(props) {
                         approvalList.map((value, index) => {
                             const key = `item-${value.asset.assetId}-${index}`;
                             return (
-                                <ListItem key={key} divider>
+                                <ListItem key={key} divider button>
                                     <ListItemAvatar
                                         className={classes.ListItemAvatar}
                                     >
@@ -270,6 +270,9 @@ export default function ApprovalsList(props) {
                                         justify="space-around"
                                         alignItems="flex-start"
                                         spacing={0}
+                                        onClick={() => {
+                                            handleEditViewEntry(value);
+                                        }}
                                     >
                                         <Typography
                                             component="span"

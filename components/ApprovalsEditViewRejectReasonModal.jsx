@@ -6,7 +6,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import { REJECTIONS_LEVEL } from '../app/constants';
 
 export default function ApprovalsEditViewRejectReasonModal(props) {
     const { reason, showEditViewRejectReasonModal } = props;

@@ -32,18 +32,18 @@ const useStyles = makeStyles(theme => ({
 
 export default function ApprovalsListByFilter(props) {
     const classes = useStyles();
-    const { level, assetTimeEntries } = props;
+    const { level, assetTimeEntries, loading } = props;
 
     const handleClick = entriesByFilter => {
         props.handleShowListByFilter(false, entriesByFilter);
     };
 
     const ApprovalBody = () => {
-        if (assetTimeEntries.length === 0) {
+        if (loading) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h4" color="primary">
-                        NO RESULT
+                        loading...
                     </Typography>
                 </div>
             );
@@ -151,5 +151,6 @@ ApprovalsListByFilter.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
     level: PropTypes.string.isRequired,
-    handleShowListByFilter: PropTypes.func.isRequired
+    handleShowListByFilter: PropTypes.func.isRequired,
+    loading: PropTypes.bool.isRequired
 };

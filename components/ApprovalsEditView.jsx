@@ -46,7 +46,10 @@ export default function ApprovalsEditView(props) {
     const [selectedTask, setSelectedTask] = React.useState(
         props.entry.task || ''
     );
-    const [selectedItems, setSelectedItems] = React.useState(props.entry.items);
+    const [selectedItems, setSelectedItems] = React.useState(
+        (props.entry.items.length > 0 && props.entry.items) ||
+            props.entry.project.items
+    );
     const [selectedStartDate, setSelectedStartDate] = React.useState(
         new Date(props.entry.start)
     );
@@ -59,8 +62,10 @@ export default function ApprovalsEditView(props) {
     );
 
     const [selectedRejectReason] = React.useState(
-        props.entry.rejected.status && props.entry.rejected.reason
+        props.entry.rejected.status ? props.entry.rejected.reason : ''
     );
+
+    const [loading] = React.useState(props.loading);
 
     React.useEffect(() => {
         /* global window */
@@ -94,10 +99,15 @@ export default function ApprovalsEditView(props) {
             rejected: { status: false }
         };
 
+        await props.handleNewEntry({ ...entry, ...updateData });
+        await props.setLoading(true);
+
         const res = await updateAssetEntry(userId, referenceId, entry._id, {
             ...entry,
             ...updateData
         });
+
+        if (!res) return false;
 
         const newEntries = [{ ...res.data }];
         await props.assetTimeEntries.map(value => {
@@ -106,6 +116,8 @@ export default function ApprovalsEditView(props) {
 
         await props.handleNewEntry({ ...entry, ...res.data });
         await props.handleNewAssetEntries(newEntries);
+        await props.setLoading(false);
+        return true;
     };
 
     const handleApprove = async () => {
@@ -115,7 +127,9 @@ export default function ApprovalsEditView(props) {
             data: [entry._id]
         };
         let res = false;
-        if (level === PREAPPROVALS_LEVEL || level === REJECTIONS_LEVEL)
+        if (!(await handleUpdate())) return false;
+        await props.setLoading(true);
+        if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level))
             res = await preApproveAssetEntries(
                 req.userId,
                 req.referenceId,
@@ -134,13 +148,15 @@ export default function ApprovalsEditView(props) {
                 req.data
             );
 
-        if (!res) return;
+        if (!res) return false;
         const newEntries = [{ ...res.data[0] }];
         await props.assetTimeEntries.map(value => {
             return value._id !== entry._id && newEntries.push(value);
         });
         await props.handleNewAssetEntries(newEntries);
         await props.handleEditViewEntry(null);
+        await props.setLoading(false);
+        return true;
     };
 
     const EditViewBody = () => {
@@ -229,6 +245,7 @@ export default function ApprovalsEditView(props) {
                 handleUpdate={handleUpdate}
                 handleApprove={handleApprove}
                 level={level}
+                loading={loading}
             />
         );
     };
@@ -249,5 +266,7 @@ ApprovalsEditView.propTypes = {
     options: PropTypes.object.isRequired,
     handleEditViewEntry: PropTypes.func.isRequired,
     handleNewEntry: PropTypes.func.isRequired,
-    handleNewAssetEntries: PropTypes.func.isRequired
+    handleNewAssetEntries: PropTypes.func.isRequired,
+    loading: PropTypes.bool.isRequired,
+    setLoading: PropTypes.func.isRequired
 };

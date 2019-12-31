@@ -29,7 +29,8 @@ class PreApprovals extends React.Component {
             defualtAssetTimeEntries: this.props.assetTimeEntries,
             options: this.props.options,
             entry: null,
-            isFilterList: true
+            isFilterList: true,
+            loading: true
         };
     }
 
@@ -43,7 +44,8 @@ class PreApprovals extends React.Component {
                 if (!value.rejected.status) filterApprovedByList.push(value);
         });
         await this.setState({
-            assetTimeEntries: filterApprovedByList
+            assetTimeEntries: filterApprovedByList,
+            loading: false
         });
     }
 
@@ -82,6 +84,8 @@ class PreApprovals extends React.Component {
                             });
                         }}
                         level={this.props.level}
+                        loading={this.state.loading}
+                        setLoading={loading => this.setState({ loading })}
                     />
                 );
             }
@@ -130,8 +134,26 @@ class PreApprovals extends React.Component {
                         await this.setState({ assetTimeEntries });
                     }}
                     handleNewEntry={async entry => {
-                        await this.setState({ entry });
+                        let assetEntry = null;
+                        if (entry) {
+                            assetEntry = {
+                                ...entry,
+                                ...{
+                                    project:
+                                        ((await this.props.options.projects) &&
+                                            this.props.options.projects.find(
+                                                value =>
+                                                    entry.project.projectId ===
+                                                    value.projectId
+                                            )) ||
+                                        entry.project
+                                }
+                            };
+                        }
+                        await this.setState({ entry: assetEntry });
                     }}
+                    loading={this.state.loading}
+                    setLoading={loading => this.setState({ loading })}
                 />
             );
         };
