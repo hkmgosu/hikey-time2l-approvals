@@ -27,7 +27,7 @@ class Rejections extends React.Component {
 
         this.state = {
             assetTimeEntries: [],
-            defualtAssetTimeEntries: this.props.assetTimeEntries,
+            defaultAssetTimeEntries: this.props.assetTimeEntries,
             options: this.props.options,
             entry: null,
             isFilterList: true,
@@ -95,7 +95,7 @@ class Rejections extends React.Component {
                     handleShowListByFilter={async (show, updatedList) => {
                         const newList = [];
                         // eslint-disable-next-line array-callback-return
-                        this.state.defualtAssetTimeEntries.map(original => {
+                        this.state.defaultAssetTimeEntries.map(original => {
                             const insertItem = updatedList.find(
                                 item => item._id === original._id
                             );
@@ -107,7 +107,7 @@ class Rejections extends React.Component {
                         await this.setState({
                             isFilterList: show,
                             assetTimeEntries: newList,
-                            defualtAssetTimeEntries: newList
+                            defaultAssetTimeEntries: newList
                         });
                     }}
                     userId={this.props.userId}
