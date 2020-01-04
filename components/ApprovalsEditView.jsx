@@ -20,7 +20,7 @@ import {
 } from '../app/constants';
 
 export default function ApprovalsEditView(props) {
-    const { level, entry, userId, referenceId, options } = props;
+    const { level, entry, userId, referenceId, options, translations } = props;
 
     // views
     const [
@@ -173,6 +173,7 @@ export default function ApprovalsEditView(props) {
                         setSelectedTask(project.tasks[0]);
                         setSelectedItems(project.items);
                     }}
+                    translations={translations}
                 />
             );
         }
@@ -183,6 +184,7 @@ export default function ApprovalsEditView(props) {
                     handleBackButton={show => setShowEditViewTaskOptions(show)}
                     tasks={selectedProject.tasks ? selectedProject.tasks : []}
                     handleSelectedTask={task => setSelectedTask(task)}
+                    translations={translations}
                 />
             );
         }
@@ -193,6 +195,7 @@ export default function ApprovalsEditView(props) {
                     handleBackButton={show => setShowEditViewItemsOptions(show)}
                     items={selectedItems}
                     handleSelectedItems={items => setSelectedItems(items)}
+                    translations={translations}
                 />
             );
         }
@@ -204,6 +207,7 @@ export default function ApprovalsEditView(props) {
                     note={selectedNote}
                     showEditViewNoteModal={showEditViewNoteModal}
                     handleSelectedNote={note => setSelectedNote(note)}
+                    translations={translations}
                 />
             );
         }
@@ -246,6 +250,7 @@ export default function ApprovalsEditView(props) {
                 handleApprove={handleApprove}
                 level={level}
                 loading={loading}
+                translations={translations}
             />
         );
     };
@@ -268,5 +273,6 @@ ApprovalsEditView.propTypes = {
     handleNewEntry: PropTypes.func.isRequired,
     handleNewAssetEntries: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
-    setLoading: PropTypes.func.isRequired
+    setLoading: PropTypes.func.isRequired,
+    translations: PropTypes.object.isRequired
 };

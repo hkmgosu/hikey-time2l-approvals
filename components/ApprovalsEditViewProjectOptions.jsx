@@ -1,3 +1,5 @@
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -67,7 +69,7 @@ export default function ApprovalsEditViewProjectOptions(props) {
     return (
         <>
             <TopAppBar
-                title="Choose a project"
+                title={props.translations.chooseProject}
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
@@ -81,9 +83,11 @@ export default function ApprovalsEditViewProjectOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder="search a project..."
+                            placeholder={`${props.translations.searchProject} ...`}
                             required
-                            inputProps={{ 'aria-label': 'search...' }}
+                            inputProps={{
+                                'aria-label': `${props.translations.search} ...`
+                            }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
@@ -135,7 +139,7 @@ export default function ApprovalsEditViewProjectOptions(props) {
                                                 classes.projectListItemText
                                             }
                                         >
-                                            {`Team: ${crew.crewId}`}
+                                            {`${props.translations.team}: ${crew.crewId}`}
                                         </Typography>
                                     </Grid>
                                 </ListItem>
@@ -177,7 +181,7 @@ export default function ApprovalsEditViewProjectOptions(props) {
                                     variant="body2"
                                     className={classes.projectListItemText}
                                 >
-                                    Team: -
+                                    {`${props.translations.team}: -`}
                                 </Typography>
                             </Grid>
                         </ListItem>
@@ -192,5 +196,6 @@ ApprovalsEditViewProjectOptions.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     projects: PropTypes.array.isRequired,
     handleBackButton: PropTypes.func.isRequired,
-    handleSelectedProject: PropTypes.func.isRequired
+    handleSelectedProject: PropTypes.func.isRequired,
+    translations: PropTypes.object.isRequired
 };

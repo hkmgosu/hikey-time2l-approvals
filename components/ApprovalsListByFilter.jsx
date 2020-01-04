@@ -1,3 +1,5 @@
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -32,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ApprovalsListByFilter(props) {
     const classes = useStyles();
-    const { level, assetTimeEntries, loading } = props;
+    const { level, assetTimeEntries, loading, translations } = props;
 
     const handleClick = entriesByFilter => {
         props.handleShowListByFilter(false, entriesByFilter);
@@ -43,7 +45,7 @@ export default function ApprovalsListByFilter(props) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h4" color="primary">
-                        loading...
+                        {`${translations.loading} ...`}
                     </Typography>
                 </div>
             );
@@ -65,7 +67,7 @@ export default function ApprovalsListByFilter(props) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h4" color="primary">
-                        NO RESULT
+                        {translations.noResultsFound}
                     </Typography>
                 </div>
             );
@@ -105,7 +107,7 @@ export default function ApprovalsListByFilter(props) {
                                         className={classes.inline}
                                         color="textPrimary"
                                     >
-                                        {`Asset: ${
+                                        {`${translations.asset}: ${
                                             value.entries.length > 0 &&
                                             value.entries[0].asset.assetId &&
                                             value.entries[0].asset.assetId
@@ -123,7 +125,7 @@ export default function ApprovalsListByFilter(props) {
                                         className={classes.inline}
                                         color="textPrimary"
                                     >
-                                        {`entries: ${value.entries.length}`}
+                                        {`${translations.entries}: ${value.entries.length}`}
                                     </Typography>
                                 </Grid>
                             </ListItem>
@@ -137,7 +139,7 @@ export default function ApprovalsListByFilter(props) {
     return (
         <>
             <TopAppBar
-                title="Select Asset"
+                title={props.translations.selectAsset}
                 position="static"
                 enableBackButton={false}
                 handleBackButton={() => {}}
@@ -148,9 +150,10 @@ export default function ApprovalsListByFilter(props) {
 }
 
 ApprovalsListByFilter.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
     level: PropTypes.string.isRequired,
     handleShowListByFilter: PropTypes.func.isRequired,
-    loading: PropTypes.bool.isRequired
+    loading: PropTypes.bool.isRequired,
+    userLanguage: PropTypes.string.isRequired,
+    translations: PropTypes.object.isRequired
 };

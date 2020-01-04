@@ -1,3 +1,5 @@
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -93,7 +95,7 @@ export default function ApprovalsList(props) {
     ] = React.useState(false);
     const [rejectReason, setRejectReason] = React.useState('');
 
-    const { level, handleEditViewEntry } = props;
+    const { level, handleEditViewEntry, translations } = props;
 
     React.useEffect(() => {
         /* global window */
@@ -212,7 +214,7 @@ export default function ApprovalsList(props) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h4" color="primary">
-                        NO RESULT
+                        {translations.noResultsFound}
                     </Typography>
                 </div>
             );
@@ -223,13 +225,14 @@ export default function ApprovalsList(props) {
         };
 
         const handleApproveButtonText = () => {
+            if (loading) return translations.loading;
             if (level === AUTHORIZATIONS_LEVEL) {
-                return 'Authorize';
+                return translations.authorise;
             }
             if (level !== REJECTIONS_LEVEL) {
-                return 'Approve';
+                return translations.approve;
             }
-            return 'Re-Submit';
+            return translations.reSubmit;
         };
 
         return (
@@ -304,7 +307,7 @@ export default function ApprovalsList(props) {
                                                 color="error"
                                                 noWrap
                                             >
-                                                rejected
+                                                {translations.rejected}
                                             </Typography>
                                         )}
                                         <Typography
@@ -384,7 +387,7 @@ export default function ApprovalsList(props) {
                             disabled={loading || checked.length === 0}
                             style={enableRejectButtonStyle}
                         >
-                            Reject
+                            {translations.reject}
                         </Button>
                     )}
                     <Button
@@ -414,6 +417,7 @@ export default function ApprovalsList(props) {
                     handleRejectReason={reason => {
                         handleReject(reason);
                     }}
+                    translations={translations}
                 />
             </>
         );
@@ -433,14 +437,14 @@ export default function ApprovalsList(props) {
 }
 
 ApprovalsList.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
     defaultEntriesList: PropTypes.array.isRequired,
     level: PropTypes.string.isRequired,
     userId: PropTypes.string.isRequired,
     referenceId: PropTypes.string.isRequired,
     handleEditViewEntry: PropTypes.func.isRequired,
     handleShowListByFilter: PropTypes.func.isRequired,
-    handleUpdateFilteredList: PropTypes.func.isRequired
+    handleUpdateFilteredList: PropTypes.func.isRequired,
+    userLanguage: PropTypes.string.isRequired,
+    translations: PropTypes.object.isRequired
 };

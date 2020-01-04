@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -111,7 +112,7 @@ export default function ApprovalsEditViewForm(props) {
         setShowEditViewRejectReasonModal
     ] = React.useState(false);
     const [rejectReason] = React.useState(props.selectedRejectReason);
-    const { level, options, loading } = props;
+    const { level, options, loading, translations } = props;
 
     const handleBackButton = () => {
         props.handleBackButton();
@@ -122,10 +123,9 @@ export default function ApprovalsEditViewForm(props) {
             moment(endDate).diff(moment(startDate))
         );
         await props.handleSelectedDuration(
-            `${parseInt(
-                durationTemp.asDays(),
-                10
-            )} days ${durationTemp.hours()}h ${
+            `${parseInt(durationTemp.asDays(), 10)} ${
+                translations.days
+            } ${durationTemp.hours()}h ${
                 durationTemp.minute < 10
                     ? `0${durationTemp.minutes()}`
                     : durationTemp.minutes()
@@ -134,8 +134,6 @@ export default function ApprovalsEditViewForm(props) {
     };
 
     React.useEffect(() => {
-        /* global window */
-        window.scrollTo(0, 0);
         handleDuration();
     });
 
@@ -173,8 +171,8 @@ export default function ApprovalsEditViewForm(props) {
                 style={{ color: 'grey ' }}
             >
                 {[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
-                    ? `Optional: Please select a project with items`
-                    : 'No items assigned'}
+                    ? translations.pleaseSelectProjectWithItems
+                    : translations.noItemsAssigned}
             </Typography>
         );
 
@@ -189,8 +187,8 @@ export default function ApprovalsEditViewForm(props) {
                 style={{ color: 'grey ' }}
             >
                 {[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
-                    ? `Optional: Please select a items`
-                    : 'No items assigned'}
+                    ? translations.pleaseSelectitems
+                    : translations.noItemsAssigned}
             </Typography>
         );
     };
@@ -203,12 +201,12 @@ export default function ApprovalsEditViewForm(props) {
 
     const handleApproveButtonText = () => {
         if (level === AUTHORIZATIONS_LEVEL) {
-            return 'Authorize';
+            return translations.authorise;
         }
         if (level !== REJECTIONS_LEVEL) {
-            return 'Approve';
+            return translations.approve;
         }
-        return 'Re-Submit';
+        return translations.reSubmit;
     };
 
     return (
@@ -238,7 +236,7 @@ export default function ApprovalsEditViewForm(props) {
                             variant="h6"
                             className={classes.entryDuration}
                         >
-                            {`Total: ${duration}`}
+                            {`${translations.total}: ${duration}`}
                         </Typography>
                     </ListItem>
 
@@ -270,7 +268,7 @@ export default function ApprovalsEditViewForm(props) {
                                     className={classes.inline}
                                     color="error"
                                 >
-                                    REJECTED
+                                    {translations.rejected}
                                 </Typography>
                                 <Typography
                                     component="span"
@@ -278,7 +276,7 @@ export default function ApprovalsEditViewForm(props) {
                                     className={classes.inline}
                                     color="textPrimary"
                                 >
-                                    Click here to see details
+                                    {translations.clickHereToSeeDetails}
                                 </Typography>
                             </Grid>
                             <Grid
@@ -290,7 +288,9 @@ export default function ApprovalsEditViewForm(props) {
                             >
                                 <IconButton
                                     className={classes.detailButton}
-                                    aria-label="select a project"
+                                    aria-label={
+                                        translations.clickHereToSeeDetails
+                                    }
                                 >
                                     <KeyboardArrowRight />
                                 </IconButton>
@@ -304,6 +304,7 @@ export default function ApprovalsEditViewForm(props) {
                                     showEditViewRejectReasonModal
                                 }
                                 handleRejectReason={false}
+                                translations={props.translations}
                             />
                         </ListItem>
                     )}
@@ -341,7 +342,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                PROJECT
+                                {translations.project.toUpperCase()}
                             </Typography>
                             <Typography
                                 component="span"
@@ -373,7 +374,7 @@ export default function ApprovalsEditViewForm(props) {
                         >
                             <IconButton
                                 className={classes.detailButton}
-                                aria-label="select a project"
+                                aria-label={translations.selectProject}
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
@@ -413,7 +414,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                TASK
+                                {translations.task.toUpperCase()}
                             </Typography>
                             {task ? (
                                 <Typography
@@ -436,8 +437,8 @@ export default function ApprovalsEditViewForm(props) {
                                     style={{ color: 'grey ' }}
                                 >
                                     {level === PREAPPROVALS_LEVEL
-                                        ? `Optional: Please select a task`
-                                        : 'No task assigned'}
+                                        ? translations.pleaseSelectTask
+                                        : translations.noTaskAssigned}
                                 </Typography>
                             )}
                         </Grid>
@@ -450,7 +451,7 @@ export default function ApprovalsEditViewForm(props) {
                         >
                             <IconButton
                                 className={classes.detailButton}
-                                aria-label="select a task"
+                                aria-label={translations.selectTask}
                             >
                                 <KeyboardArrowRight />
                             </IconButton>
@@ -487,7 +488,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                ITEMS
+                                {translations.items.toUpperCase()}
                             </Typography>
                             <ActualItems />
                         </Grid>
@@ -534,7 +535,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                START DATE
+                                {translations.startDate}
                             </Typography>
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardDatePicker
@@ -555,11 +556,13 @@ export default function ApprovalsEditViewForm(props) {
                                         readOnly: true
                                     }}
                                     InputAdornmentProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeStartDate,
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeStartDate,
                                         disabled: [
                                             APPROVALS_LEVEL,
                                             AUTHORIZATIONS_LEVEL
@@ -612,7 +615,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                START TIME
+                                {translations.startTime.toUpperCase()}
                             </Typography>
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
@@ -632,11 +635,13 @@ export default function ApprovalsEditViewForm(props) {
                                         readOnly: true
                                     }}
                                     InputAdornmentProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeStartTime,
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeStartTime,
                                         disabled: [
                                             APPROVALS_LEVEL,
                                             AUTHORIZATIONS_LEVEL
@@ -652,6 +657,7 @@ export default function ApprovalsEditViewForm(props) {
                                         AUTHORIZATIONS_LEVEL
                                     ].includes(level)}
                                     open={showStartTime}
+                                    onClose={() => setShowStartTime(false)}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
@@ -689,7 +695,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                END DATE
+                                {translations.endDate.toUpperCase()}
                             </Typography>
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardDatePicker
@@ -698,7 +704,9 @@ export default function ApprovalsEditViewForm(props) {
                                     emptyLabel=""
                                     value={endDate}
                                     minDate={startDate}
-                                    minDateMessage="Date should not be before start date"
+                                    minDateMessage={
+                                        translations.minEndDateErrorMessage
+                                    }
                                     onChange={value => {
                                         props.handleEndDate(new Date(value));
                                     }}
@@ -711,11 +719,13 @@ export default function ApprovalsEditViewForm(props) {
                                         readOnly: true
                                     }}
                                     InputAdornmentProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeEndDate,
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change start date',
+                                        'aria-label':
+                                            translations.changeEndDate,
                                         disabled: [
                                             APPROVALS_LEVEL,
                                             AUTHORIZATIONS_LEVEL
@@ -731,6 +741,7 @@ export default function ApprovalsEditViewForm(props) {
                                         AUTHORIZATIONS_LEVEL
                                     ].includes(level)}
                                     open={showEndDate}
+                                    onClose={() => setShowEndDate(false)}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
@@ -768,7 +779,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                END TIME
+                                {translations.endTime.toUpperCase()}
                             </Typography>
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
@@ -789,11 +800,13 @@ export default function ApprovalsEditViewForm(props) {
                                         readOnly: true
                                     }}
                                     InputAdornmentProps={{
-                                        'aria-label': 'change end time',
+                                        'aria-label':
+                                            translations.changeEndTime,
                                         className: classes.dateTimeIcon
                                     }}
                                     KeyboardButtonProps={{
-                                        'aria-label': 'change end time',
+                                        'aria-label':
+                                            translations.changeEndTime,
                                         disabled: [
                                             APPROVALS_LEVEL,
                                             AUTHORIZATIONS_LEVEL
@@ -809,6 +822,7 @@ export default function ApprovalsEditViewForm(props) {
                                         AUTHORIZATIONS_LEVEL
                                     ].includes(level)}
                                     open={showEndTime}
+                                    onClose={() => setShowEndTime(false)}
                                 />
                             </MuiPickersUtilsProvider>
                         </Grid>
@@ -844,7 +858,7 @@ export default function ApprovalsEditViewForm(props) {
                                 className={classes.inline}
                                 color="textPrimary"
                             >
-                                NOTES
+                                {translations.notes.toUpperCase()}
                             </Typography>
                             <Typography
                                 component="span"
@@ -858,7 +872,7 @@ export default function ApprovalsEditViewForm(props) {
                                         : { color: 'gray' }
                                 }
                             >
-                                {note || `Optional: Please enter a note`}
+                                {note || translations.pleaseEnterNote}
                             </Typography>
                         </Grid>
                         <Grid
@@ -893,7 +907,7 @@ export default function ApprovalsEditViewForm(props) {
                         style={enableEditButtonStyle}
                         disabled={loading || formError.length > 0}
                     >
-                        {loading ? 'Loading...' : 'Update'}
+                        {loading ? translations.loading : translations.update}
                     </Button>
                     <Button
                         variant="contained"
@@ -908,7 +922,9 @@ export default function ApprovalsEditViewForm(props) {
                         }}
                         disabled={loading || formError.length > 0}
                     >
-                        {loading ? 'Loading...' : handleApproveButtonText()}
+                        {loading
+                            ? translations.loading
+                            : handleApproveButtonText()}
                     </Button>
                 </Grid>
             </>
@@ -938,5 +954,6 @@ ApprovalsEditViewForm.propTypes = {
     handleShowEditViewNoteModal: PropTypes.func.isRequired,
     handleShowEditViewProjectOptions: PropTypes.func.isRequired,
     handleShowEditViewTaskOptions: PropTypes.func.isRequired,
-    loading: PropTypes.bool.isRequired
+    loading: PropTypes.bool.isRequired,
+    translations: PropTypes.object.isRequired
 };

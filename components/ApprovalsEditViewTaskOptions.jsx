@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -40,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ApprovalsEditViewTaskOptions(props) {
     const classes = useStyles();
-    const { tasks } = props;
+    const { tasks, translations } = props;
     const [filteredOptions, setFilteredOptions] = React.useState(tasks);
 
     const handleBackButton = () => {
@@ -64,7 +66,7 @@ export default function ApprovalsEditViewTaskOptions(props) {
     return (
         <>
             <TopAppBar
-                title="Choose a task"
+                title={translations.chooseTask}
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
@@ -78,9 +80,9 @@ export default function ApprovalsEditViewTaskOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder="search a task..."
+                            placeholder={`${translations.searchTask} ...`}
                             required
-                            inputProps={{ 'aria-label': 'search...' }}
+                            inputProps={{ 'aria-label': translations.search }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
@@ -123,5 +125,6 @@ ApprovalsEditViewTaskOptions.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     tasks: PropTypes.array.isRequired,
     handleBackButton: PropTypes.func.isRequired,
-    handleSelectedTask: PropTypes.func.isRequired
+    handleSelectedTask: PropTypes.func.isRequired,
+    translations: PropTypes.object.isRequired
 };

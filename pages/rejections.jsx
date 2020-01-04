@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import ApprovalsList from '../components/ApprovalsList';
@@ -18,6 +19,8 @@ class Rejections extends React.Component {
             referenceId,
             assetTimeEntries: res.assetTimeEntries,
             options: { projects: res && res.projects },
+            userLanguage: res.user.profile.language,
+            translations: res.lang,
             level: REJECTIONS_LEVEL
         };
     }
@@ -29,6 +32,8 @@ class Rejections extends React.Component {
             assetTimeEntries: [],
             defaultAssetTimeEntries: this.props.assetTimeEntries,
             options: this.props.options,
+            userLanguage: this.props.userLanguage,
+            translations: this.props.translations,
             entry: null,
             isFilterList: true,
             loading: true
@@ -83,6 +88,8 @@ class Rejections extends React.Component {
                         level={this.props.level}
                         loading={this.state.loading}
                         setLoading={loading => this.setState({ loading })}
+                        translations={this.state.translations}
+                        userLanguage={this.state.userLanguage}
                     />
                 );
             }
@@ -116,9 +123,13 @@ class Rejections extends React.Component {
                     handleUpdateFilteredList={entries =>
                         this.setState({ assetTimeEntries: entries })
                     }
+                    translations={this.state.translations}
+                    userLanguage={this.state.userLanguage}
                 />
             ) : (
                 <ApprovalsEditView
+                    translations={this.state.translations}
+                    userLanguage={this.state.userLanguage}
                     entry={this.state.entry}
                     // eslint-disable-next-line react/jsx-no-bind
                     handleEditViewEntry={this.handleEditViewEntry.bind(this)}
@@ -170,7 +181,9 @@ Rejections.propTypes = {
     options: PropTypes.object.isRequired,
     level: PropTypes.string.isRequired,
     userId: PropTypes.string.isRequired,
-    referenceId: PropTypes.string.isRequired
+    referenceId: PropTypes.string.isRequired,
+    userLanguage: PropTypes.string.isRequired,
+    translations: PropTypes.object.isRequired
 };
 
 export default Rejections;

@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
@@ -10,6 +12,7 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 export default function ApprovalsEditViewNoteModal(props) {
     const [value, setValue] = React.useState(props.note);
     const [open] = React.useState(props.showEditViewNoteModal);
+    const { translations } = props;
 
     const handleCancel = () => {
         props.handleBackButton(null);
@@ -35,15 +38,15 @@ export default function ApprovalsEditViewNoteModal(props) {
             <DialogContent dividers>
                 <TextareaAutosize
                     rows={6}
-                    aria-label="note"
-                    placeholder="write a note please..."
+                    aria-label={translations.note}
+                    placeholder={translations.writeNote}
                     defaultValue={props.note}
                     onChange={handleChange}
                 />
             </DialogContent>
             <DialogActions>
                 <Button autoFocus onClick={handleCancel} color="primary">
-                    Cancel
+                    {translations.cancel}
                 </Button>
                 <Button onClick={handleOk} color="primary">
                     Ok
@@ -57,5 +60,6 @@ ApprovalsEditViewNoteModal.propTypes = {
     note: PropTypes.string.isRequired,
     handleBackButton: PropTypes.func.isRequired,
     showEditViewNoteModal: PropTypes.bool.isRequired,
-    handleSelectedNote: PropTypes.func.isRequired
+    handleSelectedNote: PropTypes.func.isRequired,
+    translations: PropTypes.object.isRequired
 };

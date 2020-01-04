@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import ApprovalsList from '../components/ApprovalsList';
@@ -17,6 +18,8 @@ class Authorizations extends React.Component {
             referenceId,
             assetTimeEntries: res.assetTimeEntries,
             options: { projects: res && res.projects },
+            userLanguage: res.user.profile.language,
+            translations: res.lang,
             level: AUTHORIZATIONS_LEVEL
         };
     }
@@ -28,6 +31,8 @@ class Authorizations extends React.Component {
             assetTimeEntries: [],
             defaultAssetTimeEntries: this.props.assetTimeEntries,
             options: this.props.options,
+            userLanguage: this.props.userLanguage,
+            translations: this.props.translations,
             entry: null,
             isFilterList: true,
             loading: true
@@ -86,6 +91,8 @@ class Authorizations extends React.Component {
                         level={this.props.level}
                         loading={this.state.loading}
                         setLoading={loading => this.setState({ loading })}
+                        translations={this.state.translations}
+                        userLanguage={this.state.userLanguage}
                     />
                 );
             }
@@ -119,6 +126,8 @@ class Authorizations extends React.Component {
                     handleUpdateFilteredList={entries =>
                         this.setState({ assetTimeEntries: entries })
                     }
+                    translations={this.state.translations}
+                    userLanguage={this.state.userLanguage}
                 />
             ) : (
                 <ApprovalsEditView
@@ -154,6 +163,8 @@ class Authorizations extends React.Component {
                     }}
                     loading={this.state.loading}
                     setLoading={loading => this.setState({ loading })}
+                    translations={this.state.translations}
+                    userLanguage={this.state.userLanguage}
                 />
             );
         };
@@ -167,13 +178,13 @@ class Authorizations extends React.Component {
 }
 
 Authorizations.propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
     assetTimeEntries: PropTypes.array.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
     options: PropTypes.object.isRequired,
     level: PropTypes.string.isRequired,
     userId: PropTypes.string.isRequired,
-    referenceId: PropTypes.string.isRequired
+    referenceId: PropTypes.string.isRequired,
+    userLanguage: PropTypes.string.isRequired,
+    translations: PropTypes.object.isRequired
 };
 
 export default Authorizations;

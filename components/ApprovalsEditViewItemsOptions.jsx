@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -54,6 +56,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ApprovalsEditViewItemsOptions(props) {
+    const { translations } = props;
     const classes = useStyles();
     const [filteredOptions, setFilteredOptions] = React.useState(props.items);
 
@@ -92,7 +95,7 @@ export default function ApprovalsEditViewItemsOptions(props) {
     return (
         <>
             <TopAppBar
-                title="Please choose your items"
+                title={translations.chooseItems}
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
@@ -106,9 +109,9 @@ export default function ApprovalsEditViewItemsOptions(props) {
                             autoComplete="true"
                             fullWidth
                             className={classes.searchInput}
-                            placeholder="search a item..."
+                            placeholder={translations.searchItems}
                             required
-                            inputProps={{ 'aria-label': 'search...' }}
+                            inputProps={{ 'aria-label': translations.search }}
                             onChange={handleFilteredOptions}
                         />
                     </Paper>
@@ -158,7 +161,7 @@ export default function ApprovalsEditViewItemsOptions(props) {
                                                       0,
                                                       18
                                                   )}...`
-                                                : option.category
+                                                : option.category || ''
                                         }`}
                                     </Typography>
                                 </Grid>
@@ -209,7 +212,7 @@ export default function ApprovalsEditViewItemsOptions(props) {
                     size="large"
                     onClick={handleSelectedItem}
                 >
-                    Update
+                    {translations.update}
                 </Button>
             </Grid>
         </>
@@ -220,5 +223,6 @@ ApprovalsEditViewItemsOptions.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     items: PropTypes.array.isRequired,
     handleSelectedItems: PropTypes.func.isRequired,
-    handleBackButton: PropTypes.func.isRequired
+    handleBackButton: PropTypes.func.isRequired,
+    translations: PropTypes.object.isRequired
 };
