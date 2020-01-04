@@ -8,7 +8,7 @@ export default () => {
     }
 
     if (stage === 'staging') {
-        apiSuffix = 'staging';
+        apiSuffix = '-staging';
     }
 
     return `https://time2l-api${apiSuffix}.hikey.io/v1/`;
