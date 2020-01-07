@@ -213,7 +213,7 @@ export default function ApprovalsList(props) {
         if (!approvalList || approvalList.length === 0) {
             return (
                 <div className={classes.noResult}>
-                    <Typography align="center" variant="h4" color="primary">
+                    <Typography align="center" variant="h6" color="primary">
                         {translations.noResultsFound}
                     </Typography>
                 </div>

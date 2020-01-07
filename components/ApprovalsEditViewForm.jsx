@@ -187,7 +187,7 @@ export default function ApprovalsEditViewForm(props) {
                 style={{ color: 'grey ' }}
             >
                 {[PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)
-                    ? translations.pleaseSelectitems
+                    ? translations.pleaseSelectItems
                     : translations.noItemsAssigned}
             </Typography>
         );
