@@ -867,7 +867,7 @@ export default function ApprovalsEditViewForm(props) {
                                     [
                                         PREAPPROVALS_LEVEL,
                                         REJECTIONS_LEVEL
-                                    ].includes(level)
+                                    ].includes(level) && note
                                         ? {}
                                         : { color: 'gray' }
                                 }
