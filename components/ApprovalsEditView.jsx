@@ -20,7 +20,15 @@ import {
 } from '../app/constants';
 
 export default function ApprovalsEditView(props) {
-    const { level, entry, userId, referenceId, options, translations } = props;
+    const {
+        level,
+        entry,
+        userId,
+        referenceId,
+        options,
+        translations,
+        userLanguage
+    } = props;
 
     // views
     const [
@@ -56,7 +64,9 @@ export default function ApprovalsEditView(props) {
     const [selectedEndDate, setSelectedEndDate] = React.useState(
         new Date(props.entry.end)
     );
-    const [selectedNote, setSelectedNote] = React.useState(props.entry.note);
+    const [selectedNote, setSelectedNote] = React.useState(
+        props.entry.note || ''
+    );
     const [selectedDuration, setSelectedDuration] = React.useState(
         props.entry.duration
     );
@@ -251,6 +261,7 @@ export default function ApprovalsEditView(props) {
                 level={level}
                 loading={loading}
                 translations={translations}
+                userLanguage={userLanguage}
             />
         );
     };
@@ -274,5 +285,6 @@ ApprovalsEditView.propTypes = {
     handleNewAssetEntries: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
     setLoading: PropTypes.func.isRequired,
-    translations: PropTypes.object.isRequired
+    translations: PropTypes.object.isRequired,
+    userLanguage: PropTypes.string.isRequired
 };

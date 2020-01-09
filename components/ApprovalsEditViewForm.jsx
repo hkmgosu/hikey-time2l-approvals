@@ -27,6 +27,10 @@ import {
     REJECTIONS_LEVEL,
     PREAPPROVALS_LEVEL
 } from '../app/constants';
+import 'moment/locale/de';
+import 'moment/locale/es';
+
+moment.locale('en'); // it is required to select default locale manually
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -112,7 +116,7 @@ export default function ApprovalsEditViewForm(props) {
         setShowEditViewRejectReasonModal
     ] = React.useState(false);
     const [rejectReason] = React.useState(props.selectedRejectReason);
-    const { level, options, loading, translations } = props;
+    const { level, options, loading, translations, userLanguage } = props;
 
     const handleBackButton = () => {
         props.handleBackButton();
@@ -537,10 +541,15 @@ export default function ApprovalsEditViewForm(props) {
                             >
                                 {translations.startDate}
                             </Typography>
-                            <MuiPickersUtilsProvider utils={MomentUtils}>
+                            <MuiPickersUtilsProvider
+                                libInstance={moment}
+                                utils={MomentUtils}
+                                locale={userLanguage.toLowerCase()}
+                            >
                                 <KeyboardDatePicker
                                     id="date-picker-start"
                                     format="DD/MM/YYYY"
+                                    cancelLabel={translations.cancel}
                                     strictCompareDates
                                     emptyLabel=""
                                     value={startDate}
@@ -620,6 +629,7 @@ export default function ApprovalsEditViewForm(props) {
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
                                     id="time-picker-start"
+                                    ampm={false}
                                     emptyLabel=""
                                     value={startDate}
                                     onChange={async value => {
@@ -697,9 +707,14 @@ export default function ApprovalsEditViewForm(props) {
                             >
                                 {translations.endDate.toUpperCase()}
                             </Typography>
-                            <MuiPickersUtilsProvider utils={MomentUtils}>
+                            <MuiPickersUtilsProvider
+                                libInstance={moment}
+                                utils={MomentUtils}
+                                locale={userLanguage.toLowerCase()}
+                            >
                                 <KeyboardDatePicker
                                     id="date-picker-end"
+                                    cancelLabel={translations.cancel}
                                     format="DD/MM/YYYY"
                                     emptyLabel=""
                                     value={endDate}
@@ -784,6 +799,7 @@ export default function ApprovalsEditViewForm(props) {
                             <MuiPickersUtilsProvider utils={MomentUtils}>
                                 <KeyboardTimePicker
                                     id="time-picker-end"
+                                    ampm={false}
                                     minDateMessage="Date should not be before start time"
                                     emptyLabel=""
                                     value={endDate}
@@ -955,5 +971,6 @@ ApprovalsEditViewForm.propTypes = {
     handleShowEditViewProjectOptions: PropTypes.func.isRequired,
     handleShowEditViewTaskOptions: PropTypes.func.isRequired,
     loading: PropTypes.bool.isRequired,
-    translations: PropTypes.object.isRequired
+    translations: PropTypes.object.isRequired,
+    userLanguage: PropTypes.string.isRequired
 };
