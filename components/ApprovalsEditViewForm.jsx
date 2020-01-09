@@ -118,6 +118,8 @@ export default function ApprovalsEditViewForm(props) {
     const [rejectReason] = React.useState(props.selectedRejectReason);
     const { level, options, loading, translations, userLanguage } = props;
 
+    moment.locale(userLanguage);
+
     const handleBackButton = () => {
         props.handleBackButton();
     };
@@ -216,7 +218,7 @@ export default function ApprovalsEditViewForm(props) {
     return (
         <>
             <TopAppBar
-                title={translations.timesheet}
+                title="Timesheet"
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
