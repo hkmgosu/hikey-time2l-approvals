@@ -95,7 +95,9 @@ export default function ApprovalsList(props) {
     ] = React.useState(false);
     const [rejectReason, setRejectReason] = React.useState('');
 
-    const { level, handleEditViewEntry, translations } = props;
+    const { level, handleEditViewEntry, translations, userLanguage } = props;
+
+    moment.locale(userLanguage);
 
     React.useEffect(() => {
         /* global window */
