@@ -218,7 +218,7 @@ export default function ApprovalsEditViewForm(props) {
     return (
         <>
             <TopAppBar
-                title="Timesheet"
+                title={translations.timesheet}
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
