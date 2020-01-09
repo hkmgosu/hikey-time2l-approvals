@@ -426,7 +426,7 @@ export default function ApprovalsList(props) {
     return (
         <>
             <TopAppBar
-                title="Select record"
+                title={translations.selectRecord}
                 position="static"
                 enableBackButton
                 handleBackButton={handleBackButton}
