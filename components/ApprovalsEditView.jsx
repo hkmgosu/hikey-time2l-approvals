@@ -137,7 +137,9 @@ export default function ApprovalsEditView(props) {
             data: [entry._id]
         };
         let res = false;
-        if (!(await handleUpdate())) return false;
+        if ([PREAPPROVALS_LEVEL].includes(level)) {
+            if (!(await handleUpdate())) return false;
+        }
         await props.setLoading(true);
         if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level))
             res = await preApproveAssetEntries(
