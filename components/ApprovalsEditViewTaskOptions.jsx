@@ -56,9 +56,12 @@ export default function ApprovalsEditViewTaskOptions(props) {
 
     const handleFilteredOptions = async event => {
         const filtered = tasks.filter(op => {
-            return (
-                op.toLowerCase().search(event.target.value.toLowerCase()) !== -1
-            );
+            return typeof op === 'string'
+                ? op.toLowerCase().search(event.target.value.toLowerCase()) !==
+                      -1
+                : op.id
+                      .toLowerCase()
+                      .search(event.target.value.toLowerCase()) !== -1;
         });
         setFilteredOptions(filtered);
     };
@@ -88,13 +91,19 @@ export default function ApprovalsEditViewTaskOptions(props) {
                     </Paper>
                 </ListItem>
                 {filteredOptions.map(option => {
+                    const formatedOption =
+                        typeof option === 'string' ? option : option.id;
                     return (
                         <ListItem
-                            key={`option-${option}`}
+                            key={`option-${formatedOption}`}
                             divider
                             button
                             onClick={() => {
-                                handleSelectedTask(option);
+                                handleSelectedTask(
+                                    typeof option === 'string'
+                                        ? { id: option, category: null }
+                                        : option
+                                );
                             }}
                         >
                             <Grid
@@ -110,7 +119,7 @@ export default function ApprovalsEditViewTaskOptions(props) {
                                     className={classes.inline}
                                     color="textPrimary"
                                 >
-                                    {option}
+                                    {formatedOption}
                                 </Typography>
                             </Grid>
                         </ListItem>

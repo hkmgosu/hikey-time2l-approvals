@@ -434,7 +434,7 @@ export default function ApprovalsEditViewForm(props) {
                                             : {}
                                     }
                                 >
-                                    {task}
+                                    {typeof task === 'string' ? task : task.id}
                                 </Typography>
                             ) : (
                                 <Typography
@@ -965,7 +965,8 @@ ApprovalsEditViewForm.propTypes = {
     selectedItems: PropTypes.array.isRequired,
     selectedStartDate: PropTypes.instanceOf(Date).isRequired,
     handleStartDate: PropTypes.func.isRequired,
-    selectedTask: PropTypes.string.isRequired,
+    selectedTask: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+        .isRequired,
     selectedNote: PropTypes.string.isRequired,
     selectedRejectReason: PropTypes.string.isRequired,
     handleShowEditViewItemsOptions: PropTypes.func.isRequired,

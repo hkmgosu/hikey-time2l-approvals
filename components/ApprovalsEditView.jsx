@@ -51,9 +51,7 @@ export default function ApprovalsEditView(props) {
     const [selectedProject, setSelectedProject] = React.useState(
         props.entry.project
     );
-    const [selectedTask, setSelectedTask] = React.useState(
-        props.entry.task || ''
-    );
+    const [selectedTask, setSelectedTask] = React.useState(props.entry.task);
     const [selectedItems, setSelectedItems] = React.useState(
         (props.entry.items.length > 0 && props.entry.items) ||
             props.entry.project.items
