@@ -39,7 +39,7 @@ export const listEntriesForApproval = async (userId, referenceId) => {
 };
 
 export const listEntriesForReSubmit = async userId => {
-    const url = `${baseApiPathV1()}rejections/${userId}}`;
+    const url = `${baseApiPathV1()}rejections/${userId}/referenceid`;
 
     return axios
         .get(url)
