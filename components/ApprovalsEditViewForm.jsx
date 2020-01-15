@@ -247,14 +247,13 @@ export default function ApprovalsEditViewForm(props) {
                     </ListItem>
 
                     {level === REJECTIONS_LEVEL && (
-                        <ListItem
-                            divider
-                            button
-                            onClick={() =>
-                                setShowEditViewRejectReasonModal(true)
-                            }
-                        >
-                            <ListItemAvatar className={classes.ListItemAvatar}>
+                        <ListItem divider button>
+                            <ListItemAvatar
+                                className={classes.ListItemAvatar}
+                                onClick={() =>
+                                    setShowEditViewRejectReasonModal(true)
+                                }
+                            >
                                 <Avatar
                                     alt="Project"
                                     src="/static/icons/Icons_AppInterface-8.svg"
@@ -267,6 +266,9 @@ export default function ApprovalsEditViewForm(props) {
                                 justify="space-around"
                                 alignItems="flex-start"
                                 spacing={0}
+                                onClick={() =>
+                                    setShowEditViewRejectReasonModal(true)
+                                }
                             >
                                 <Typography
                                     component="span"
@@ -291,6 +293,9 @@ export default function ApprovalsEditViewForm(props) {
                                 justify="flex-end"
                                 alignItems="center"
                                 style={{ width: 48, ...enableEditButtonStyle }}
+                                onClick={() =>
+                                    setShowEditViewRejectReasonModal(true)
+                                }
                             >
                                 <IconButton
                                     className={classes.detailButton}
@@ -429,9 +434,12 @@ export default function ApprovalsEditViewForm(props) {
                                     className={classes.inline}
                                     color="textPrimary"
                                     style={
-                                        level !== PREAPPROVALS_LEVEL
-                                            ? { color: 'gray' }
-                                            : {}
+                                        [
+                                            PREAPPROVALS_LEVEL,
+                                            REJECTIONS_LEVEL
+                                        ].includes(level)
+                                            ? {}
+                                            : { color: 'gray' }
                                     }
                                 >
                                     {typeof task === 'string' ? task : task.id}
@@ -440,7 +448,7 @@ export default function ApprovalsEditViewForm(props) {
                                 <Typography
                                     component="span"
                                     variant="body2"
-                                    style={{ color: 'grey ' }}
+                                    style={{ color: 'gray ' }}
                                 >
                                     {level === PREAPPROVALS_LEVEL
                                         ? translations.pleaseSelectTask
