@@ -92,7 +92,7 @@ export default function ApprovalsEditView(props) {
         selectedItems.forEach(item => {
             const tempItem = { ...item };
             delete tempItem.active;
-            return actualItems.push(tempItem);
+            actualItems.push(tempItem);
         });
         const actualTasks = [];
         selectedTask.forEach(task => {
@@ -107,7 +107,6 @@ export default function ApprovalsEditView(props) {
                 description: selectedProject.description,
                 _id: selectedProject._id
             },
-            task: actualTasks,
             start: selectedStartDate,
             end: selectedEndDate,
             note: selectedNote,
@@ -115,6 +114,11 @@ export default function ApprovalsEditView(props) {
             duration: selectedDuration,
             rejected: { status: false }
         };
+        if (typeof selectedTask === 'object') {
+            const actualTask = { ...selectedTask };
+            delete actualTask.assignedToAll;
+            updateData.task = actualTask;
+        }
 
         await props.handleNewEntry({ ...entry, ...updateData });
         await props.setLoading(true);
@@ -144,7 +148,7 @@ export default function ApprovalsEditView(props) {
             data: [entry._id]
         };
         let res = false;
-        if ([PREAPPROVALS_LEVEL].includes(level)) {
+        if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)) {
             if (!(await handleUpdate())) return false;
         }
         await props.setLoading(true);
