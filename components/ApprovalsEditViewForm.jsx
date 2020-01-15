@@ -434,9 +434,12 @@ export default function ApprovalsEditViewForm(props) {
                                     className={classes.inline}
                                     color="textPrimary"
                                     style={
-                                        level !== PREAPPROVALS_LEVEL
-                                            ? { color: 'gray' }
-                                            : {}
+                                        [
+                                            PREAPPROVALS_LEVEL,
+                                            REJECTIONS_LEVEL
+                                        ].includes(level)
+                                            ? {}
+                                            : { color: 'gray' }
                                     }
                                 >
                                     {typeof task === 'string' ? task : task.id}
@@ -445,7 +448,7 @@ export default function ApprovalsEditViewForm(props) {
                                 <Typography
                                     component="span"
                                     variant="body2"
-                                    style={{ color: 'grey ' }}
+                                    style={{ color: 'gray ' }}
                                 >
                                     {level === PREAPPROVALS_LEVEL
                                         ? translations.pleaseSelectTask
