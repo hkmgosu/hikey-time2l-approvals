@@ -51,10 +51,13 @@ export default function ApprovalsEditView(props) {
     const [selectedProject, setSelectedProject] = React.useState(
         props.entry.project
     );
-    const [selectedTask, setSelectedTask] = React.useState(props.entry.task);
+    const [selectedTask, setSelectedTask] = React.useState(
+        props.entry.task || ''
+    );
     const [selectedItems, setSelectedItems] = React.useState(
         (props.entry.items.length > 0 && props.entry.items) ||
-            props.entry.project.items
+            props.entry.project.items ||
+            []
     );
     const [selectedStartDate, setSelectedStartDate] = React.useState(
         new Date(props.entry.start)
@@ -86,10 +89,16 @@ export default function ApprovalsEditView(props) {
 
     const handleUpdate = async () => {
         const actualItems = [];
-        selectedItems.map(item => {
+        selectedItems.forEach(item => {
             const tempItem = { ...item };
             delete tempItem.active;
             return actualItems.push(tempItem);
+        });
+        const actualTasks = [];
+        selectedTask.forEach(task => {
+            const tempTask = { ...task };
+            delete tempTask.assignedToAll;
+            return actualTasks.push(tempTask);
         });
         const updateData = {
             _id: entry._id,
@@ -98,7 +107,7 @@ export default function ApprovalsEditView(props) {
                 description: selectedProject.description,
                 _id: selectedProject._id
             },
-            task: selectedTask,
+            task: actualTasks,
             start: selectedStartDate,
             end: selectedEndDate,
             note: selectedNote,
