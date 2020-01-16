@@ -168,7 +168,7 @@ export default function ApprovalsEditViewForm(props) {
                 </Typography>
             );
         });
-    } else
+    } else {
         actualItems.push(
             <Typography
                 key={`item-${0}`}
@@ -181,6 +181,7 @@ export default function ApprovalsEditViewForm(props) {
                     : translations.noItemsAssigned}
             </Typography>
         );
+    }
 
     const ActualItems = () => {
         return actualItems.length > 0 ? (
@@ -531,8 +532,9 @@ export default function ApprovalsEditViewForm(props) {
                                 [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
                                     level
                                 )
-                            )
+                            ) {
                                 if (!showStartDate) setShowStartDate(true);
+                            }
                         }}
                     >
                         <ListItemAvatar className={classes.ListItemAvatar}>
@@ -611,8 +613,9 @@ export default function ApprovalsEditViewForm(props) {
                                 [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
                                     level
                                 )
-                            )
+                            ) {
                                 if (!showStartTime) setShowStartTime(true);
+                            }
                         }}
                     >
                         <ListItemAvatar className={classes.ListItemAvatar}>
@@ -692,8 +695,9 @@ export default function ApprovalsEditViewForm(props) {
                                 [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
                                     level
                                 )
-                            )
+                            ) {
                                 if (!showEndDate) setShowEndDate(true);
+                            }
                         }}
                     >
                         <ListItemAvatar className={classes.ListItemAvatar}>
@@ -781,8 +785,9 @@ export default function ApprovalsEditViewForm(props) {
                                 [PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(
                                     level
                                 )
-                            )
+                            ) {
                                 if (!showEndTime) setShowEndTime(true);
+                            }
                         }}
                     >
                         <ListItemAvatar className={classes.ListItemAvatar}>

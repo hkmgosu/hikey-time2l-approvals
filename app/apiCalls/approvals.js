@@ -38,8 +38,8 @@ export const listEntriesForApproval = async (userId, referenceId) => {
         .finally(() => {});
 };
 
-export const listEntriesForReSubmit = async userId => {
-    const url = `${baseApiPathV1()}rejections/${userId}/referenceid`;
+export const listEntriesForReSubmit = async (userId, referenceId) => {
+    const url = `${baseApiPathV1()}rejections/${userId}/${referenceId}`;
 
     return axios
         .get(url)

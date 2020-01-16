@@ -9,10 +9,9 @@ import { REJECTIONS_LEVEL } from '../app/constants';
 
 class Rejections extends React.Component {
     static async getInitialProps({ query }) {
-        const { userId } = query,
-            referenceId = '';
+        const { userId, referenceId } = query;
 
-        const res = await listEntriesForReSubmit(userId);
+        const res = await listEntriesForReSubmit(userId, referenceId);
 
         return {
             userId,

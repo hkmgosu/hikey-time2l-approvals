@@ -94,12 +94,7 @@ export default function ApprovalsEditView(props) {
             delete tempItem.active;
             actualItems.push(tempItem);
         });
-        const actualTasks = [];
-        selectedTask.forEach(task => {
-            const tempTask = { ...task };
-            delete tempTask.assignedToAll;
-            return actualTasks.push(tempTask);
-        });
+
         const updateData = {
             _id: entry._id,
             project: {
@@ -152,24 +147,27 @@ export default function ApprovalsEditView(props) {
             if (!(await handleUpdate())) return false;
         }
         await props.setLoading(true);
-        if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level))
+        if ([PREAPPROVALS_LEVEL, REJECTIONS_LEVEL].includes(level)) {
             res = await preApproveAssetEntries(
                 req.userId,
                 req.referenceId,
                 req.data
             );
-        if (level === APPROVALS_LEVEL)
+        }
+        if (level === APPROVALS_LEVEL) {
             res = await approveAssetEntries(
                 req.userId,
                 req.referenceId,
                 req.data
             );
-        if (level === AUTHORIZATIONS_LEVEL)
+        }
+        if (level === AUTHORIZATIONS_LEVEL) {
             res = await authorizeAssetEntries(
                 req.userId,
                 req.referenceId,
                 req.data
             );
+        }
 
         if (!res) return false;
         const newEntries = [{ ...res.data[0] }];

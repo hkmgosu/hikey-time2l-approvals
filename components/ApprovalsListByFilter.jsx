@@ -53,17 +53,27 @@ export default function ApprovalsListByFilter(props) {
         const filterApprovedByList = [];
         // eslint-disable-next-line array-callback-return
         assetTimeEntries.map(value => {
-            if (level === PREAPPROVALS_LEVEL && !value.preApproved.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === APPROVALS_LEVEL && !value.approved.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === REJECTIONS_LEVEL && value.rejected.status)
+            if (level === PREAPPROVALS_LEVEL && !value.preApproved.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === APPROVALS_LEVEL && !value.approved.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === REJECTIONS_LEVEL && value.rejected.status) {
                 filterApprovedByList.push(value);
+            }
         });
 
-        if (filterApprovedByList.length === 0)
+        if (filterApprovedByList.length === 0) {
             return (
                 <div className={classes.noResult}>
                     <Typography align="center" variant="h6" color="primary">
@@ -71,6 +81,7 @@ export default function ApprovalsListByFilter(props) {
                     </Typography>
                 </div>
             );
+        }
 
         const group = _.groupBy(filterApprovedByList, value => value.asset._id);
         let entriesByFilter = [];

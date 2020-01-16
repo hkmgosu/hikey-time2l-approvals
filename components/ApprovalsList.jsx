@@ -104,14 +104,24 @@ export default function ApprovalsList(props) {
         window.scrollTo(0, 0);
         const filterApprovedByList = [];
         approvalList.forEach(value => {
-            if (level === PREAPPROVALS_LEVEL && !value.preApproved.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === APPROVALS_LEVEL && !value.approved.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status)
-                if (!value.rejected.status) filterApprovedByList.push(value);
-            if (level === REJECTIONS_LEVEL && value.rejected.status)
+            if (level === PREAPPROVALS_LEVEL && !value.preApproved.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === APPROVALS_LEVEL && !value.approved.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === AUTHORIZATIONS_LEVEL && !value.authorised.status) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
+            if (level === REJECTIONS_LEVEL && value.rejected.status) {
                 filterApprovedByList.push(value);
+            }
         });
         setNewEntriesList(approvalList);
         setApprovalList(filterApprovedByList);
