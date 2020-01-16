@@ -47,18 +47,34 @@ export default function ApprovalsEditView(props) {
         null
     );
 
-    // data
     const [selectedProject, setSelectedProject] = React.useState(
         props.entry.project
     );
     const [selectedTask, setSelectedTask] = React.useState(
         props.entry.task || ''
     );
-    const [selectedItems, setSelectedItems] = React.useState(
-        (props.entry.items.length > 0 && props.entry.items) ||
-            props.entry.project.items ||
-            []
-    );
+
+    let formattedItems = [];
+    if (
+        props.entry.items &&
+        props.entry.items.length > 0 &&
+        props.entry.project.items
+    ) {
+        props.entry.project.items.forEach(projectItem => {
+            const entryItemFound = props.entry.items.find(
+                entryItem => projectItem.name === entryItem.name
+            );
+            if (entryItemFound && entryItemFound.actual) {
+                formattedItems.push(entryItemFound);
+            } else {
+                formattedItems.push(projectItem);
+            }
+        });
+    } else {
+        formattedItems = props.entry.project.items || [];
+    }
+    const [selectedItems, setSelectedItems] = React.useState(formattedItems);
+
     const [selectedStartDate, setSelectedStartDate] = React.useState(
         new Date(props.entry.start)
     );
@@ -90,11 +106,12 @@ export default function ApprovalsEditView(props) {
     const handleUpdate = async () => {
         const actualItems = [];
         selectedItems.forEach(item => {
-            const tempItem = { ...item };
-            delete tempItem.active;
-            actualItems.push(tempItem);
+            if (item.actual) {
+                const tempItem = { ...item };
+                delete tempItem.active;
+                actualItems.push(tempItem);
+            }
         });
-
         const updateData = {
             _id: entry._id,
             project: {
@@ -106,8 +123,7 @@ export default function ApprovalsEditView(props) {
             end: selectedEndDate,
             note: selectedNote,
             items: actualItems,
-            duration: selectedDuration,
-            rejected: { status: false }
+            duration: selectedDuration
         };
         if (typeof selectedTask === 'object') {
             const actualTask = { ...selectedTask };

@@ -45,8 +45,11 @@ class Authorizations extends React.Component {
             if (
                 this.props.level === AUTHORIZATIONS_LEVEL &&
                 !value.authorised.status
-            )
-                if (!value.rejected.status) filterApprovedByList.push(value);
+            ) {
+                if (!value.rejected.status) {
+                    filterApprovedByList.push(value);
+                }
+            }
         });
         await this.setState({
             assetTimeEntries: filterApprovedByList,
