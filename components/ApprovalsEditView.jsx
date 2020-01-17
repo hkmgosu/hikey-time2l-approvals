@@ -55,21 +55,23 @@ export default function ApprovalsEditView(props) {
     );
 
     let formattedItems = [];
-    if (
-        props.entry.items &&
-        props.entry.items.length > 0 &&
-        props.entry.project.items
-    ) {
-        props.entry.project.items.forEach(projectItem => {
-            const entryItemFound = props.entry.items.find(
-                entryItem => projectItem.name === entryItem.name
+    if (props.entry.items && props.entry.items.length > 0) {
+        if (props.entry.project.items) {
+            props.entry.project.items.forEach(projectItem => {
+                const entryItemFound = props.entry.items.find(
+                    entryItem => projectItem.name === entryItem.name
+                );
+                if (entryItemFound && entryItemFound.actual) {
+                    formattedItems.push(entryItemFound);
+                } else {
+                    formattedItems.push(projectItem);
+                }
+            });
+        } else {
+            props.entry.items.forEach(entryItem =>
+                formattedItems.push(entryItem)
             );
-            if (entryItemFound && entryItemFound.actual) {
-                formattedItems.push(entryItemFound);
-            } else {
-                formattedItems.push(projectItem);
-            }
-        });
+        }
     } else {
         formattedItems = props.entry.project.items || [];
     }
