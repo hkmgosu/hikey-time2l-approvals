@@ -84,7 +84,13 @@ export default function ApprovalsList(props) {
     const [loading, setLoading] = React.useState(false);
     const [checked, setChecked] = React.useState([]);
     const [approvalList, setApprovalList] = React.useState(
-        _.orderBy(props.assetTimeEntries, ['start'], ['desc'])
+        _.orderBy(
+            _.sortBy(props.assetTimeEntries, dateObj => {
+                return moment(dateObj.start);
+            }),
+            ['start'],
+            ['desc']
+        )
     );
     const [newEntriesList, setNewEntriesList] = React.useState(
         props.defaultEntriesList
