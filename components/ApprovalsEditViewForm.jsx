@@ -129,9 +129,7 @@ export default function ApprovalsEditViewForm(props) {
             moment(endDate).diff(moment(startDate))
         );
         await props.handleSelectedDuration(
-            `${parseInt(durationTemp.asDays(), 10)} ${
-                translations.days
-            } ${durationTemp.hours()}h ${
+            `${parseInt(durationTemp.asDays(), 10)}d ${durationTemp.hours()}h ${
                 durationTemp.minute < 10
                     ? `0${durationTemp.minutes()}`
                     : durationTemp.minutes()
